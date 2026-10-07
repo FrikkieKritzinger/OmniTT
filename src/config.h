@@ -30,8 +30,8 @@
 #define PIN_MOTOR_B     13  // GPIO13 - Motor direction B
 #define PIN_MOTOR_PWM   32  // GPIO32 - Motor PWM speed (0-255)
 
-// Index / Home Sensor
-#define PIN_INDEX_SENSOR 34 // GPIO34 - ADC capable, index pulse input
+// Home Sensor (Position Recalibration)
+#define PIN_HOME_SENSOR 35  // GPIO35 - Microswitch at home position (exit 0)
 
 // Bridge Power Relay (polarity invert, optional)
 #define PIN_RELAY_CTRL  2   // GPIO2  - Relay control output

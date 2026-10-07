@@ -105,8 +105,8 @@ The controller has these parts:
 | HW-23 | Bridge power | OUT | Switched and polarity-controlled track power to the bridge. |
 | HW-24 | Motor 1 | OUT | DC motor terminal 1. |
 | HW-25 | Motor 2 | OUT | DC motor terminal 2. |
-| HW-26 | Stepper | OUT | Stepper motor connector(s). The source lists 3 connectors. **[OPEN – OI-04]** |
-| HW-27 | Index sensor | IN | Position index sensor input. **[OPEN – OI-05]** |
+| HW-26 | Motor driver | OUT | TB6612FNG Dual H-Bridge: 4 GPIO (2 dir, 2 PWM). Drives DC or stepper motor up to 12V/1.2A. **[RESOLVED – OI-04]** |
+| HW-27 | Home sensor | IN | Microswitch at home position (exit 0). Detects home for position recalibration. **[RESOLVED – OI-08/09]** |
 
 ### 3.4 Physical layout
 
@@ -325,12 +325,12 @@ Questions and design considerations from the source material, still to be resolv
 |---|---|---|
 | OI-01 | **Display** | ✅ **RESOLVED (2026-10-07):** Display priority is SIZE. Use 2.44" SPI OLED (128×64) to meet the 2.4" minimum requirement. SPI interface frees the I²C bus for sensors. |
 | OI-11 | **GPIO availability** | ✅ **RESOLVED (2026-10-07):** Upgrade from ESP8266 D1 Mini to ESP32 D1 Mini. Provides 30+ usable GPIO with no expander needed. Eliminates pin constraints, simplifies hardware, enables future expansion. |
+| OI-04 | **Motor driver** | ✅ **RESOLVED (2026-10-07):** Use TB6612FNG Dual Channel H-Bridge modules. 4 GPIO pins per module (2 direction, 2 PWM). Can drive stepper or DC motor up to 12V/1.2A. Scope Phase 1: Fleischmann 6152 (48 positions, solenoid-locked, bidirectional DC motor). |
+| OI-05 | **Position tracking** | ✅ **RESOLVED (2026-10-07):** Time-based tracking via calibrated motor timing. Learn milliseconds-per-position via menu option "Index Hold Time". Dead-reckoning between home passes. Solenoid auto-locks at each index. First move after power-up recalibrates position via home sensor. |
+| OI-08 | **Home detection** | ✅ **RESOLVED (2026-10-07):** Microswitch at home position (exit 0). Detects when bridge passes home. Used to recalibrate position on first move after power-up. GPIO35 assigned for home sensor input. |
+| OI-09 | **Startup behavior** | ✅ **RESOLVED (2026-10-07):** Display bridge icon flashing RED from startup until first home pass. Once home sensor detects, icon turns GREEN and position is set to HOME. Then continue to target exit. Subsequent moves use dead-reckoning (no red flash). Most bridges remain where left, so this is pragmatic and fast. |
 | OI-02 | **MENU input** | Use a dedicated MENU button, or an encoder gesture such as a double-click or long-press? Should a separate shortcut button also sit next to the encoder (HW-32)? |
 | OI-03 | **Emergency STOP input** | A separate dedicated STOP button, or an encoder/menu gesture? A dedicated button is generally safer. |
-| OI-04 | **Stepper connectors** | Three stepper connectors are listed. Confirm what they are for, such as different motor/driver pinouts or wiring variants. |
-| OI-05 | **Index sensor count** | Use one index sensor and count pulses as the bridge passes each exit, or one sensor per exit? |
 | OI-06 | **Web configuration** | Should configuration also be possible from a web page, in addition to the local menu? |
 | OI-07 | **Additional config values** | Are any other configuration values needed? Candidates: motor speed, acceleration/deceleration, relay crossover angle, display brightness. |
-| OI-08 | **Index detection (DC motor)** | With a DC motor, how does the controller detect that it has reached an index point? Options: Hall-effect sensor, IR/optical sensor, microswitch. |
-| OI-09 | **Home detection** | How is the home position detected? A dedicated sensor, or a distinguishable index? |
-| OI-10 | **Position after shutdown** | How is the position saved and confirmed after power loss? Covers EEPROM writes (DAT-02) and checking the position at startup. |
+| OI-10 | **Position persistence** | Position saved in EEPROM when motion completes (DAT-02/04). On startup, EEPROM position used as assumption; first move recalibrates via home sensor. No explicit confirmation needed beyond home sensor pass. |

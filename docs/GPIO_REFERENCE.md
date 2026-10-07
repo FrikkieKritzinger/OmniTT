@@ -30,7 +30,7 @@
 | Direction B | 13 | D13 | GPIO | Motor direction line B |
 | PWM Speed | 32 | D32 | GPIO+PWM | Motor speed (0–255 or 0–1023) |
 | **Sensors** | | | **GPIO** | Position feedback |
-| Index Sensor | 34 | D34 | ADC/GPIO | Index/home detector (input only) |
+| Home Sensor | 35 | D35 | GPIO | Microswitch at home (exit 0) — recalibration trigger (input only) |
 | **Power & Relay** | | | **GPIO** | Bridge power control |
 | Relay Control | 2 | D2 | GPIO | Bridge power/polarity invert |
 
@@ -87,9 +87,9 @@ The ESP32 uses internal pull-ups/pull-downs on certain GPIO for boot configurati
 
 ## Total GPIO Usage
 
-- **Assigned**: 15 GPIO pins
+- **Assigned**: 16 GPIO pins (display, encoder, buttons, motor, LocoNet, home sensor, relay)
 - **Available on ESP32**: 30+ usable GPIO
-- **Headroom**: 15+ pins free for future sensors, SD card, expansion
+- **Headroom**: 14+ pins free for future sensors, SD card, expansion
 
 ### Pins Still Available
 GPIO 1, 3, 6–11 (flash), 14, 15, 24, 28–31, 35–39 (most are input-only)

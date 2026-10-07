@@ -2,6 +2,26 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-07 - Motor control & position tracking finalized (session 2, part 3)
+
+- **Resolved OI-04 (Motor driver)**: TB6612FNG Dual H-Bridge modules. 4 GPIO pins
+  per module (2 direction, 2 PWM). Supports DC or stepper motors, up to 12V/1.2A.
+  Phase 1 scope: Fleischmann 6152 (48 positions, solenoid-locked, bidirectional).
+- **Resolved OI-05 (Position tracking)**: Time-based dead-reckoning via calibrated
+  motor timing (milliseconds per position). Configurable via menu "Index Hold Time".
+  Solenoid auto-locks at each index. First move recalibrates position.
+- **Resolved OI-08/09 (Home detection & startup)**: Single microswitch at home
+  (exit 0, GPIO35). Startup shows flashing RED bridge icon until first home pass.
+  Once home is detected, position is set to HOME, icon turns GREEN, then continue
+  to target. Pragmatic: most bridges remain where they're left. Subsequent moves
+  use dead-reckoning (no red flash).
+- **Scope clarification**: Phase 1 targets Fleischmann 6152 specifically (48 indexed
+  positions, mechanical solenoid-lock). Generic turntable support (PECO, Walthers,
+  unindexed, Hall-effect indexing) deferred to Phase 2+.
+- **SRD updated to v0.12**: OI-04, OI-05, OI-08, OI-09 marked RESOLVED. Open issues
+  remaining: OI-02 (MENU input), OI-03 (E-STOP), OI-06 (web config), OI-07 (extra
+  config), OI-10 (position persistence, now understood).
+
 ## 2026-10-07 - Hardware decisions & GPIO mapping (session 2, part 2)
 
 - **Resolved OI-01 (Display)**: Chose SPI over I²C. Using 2.44" SPI OLED (128×64)
