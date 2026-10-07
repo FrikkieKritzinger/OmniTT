@@ -2,7 +2,26 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
-## 2026-10-07 - Build system & skeleton (session 2)
+## 2026-10-07 - Hardware decisions & GPIO mapping (session 2, part 2)
+
+- **Resolved OI-01 (Display)**: Chose SPI over I²C. Using 2.44" SPI OLED (128×64)
+  from stock. Meets 2.4" minimum requirement, provides better visibility than I²C
+  alternatives, and frees the I²C bus for sensors.
+- **Resolved OI-11 (GPIO Budget)**: Upgraded from ESP8266 D1 Mini to ESP32 D1 Mini.
+  Provides 30+ usable GPIO, eliminates need for I/O expander, gives headroom for
+  future expansion. No pin constraints.
+- **Hardware stack finalized**:
+  - MCU: ESP32 D1 Mini (Wemos form factor, WROOM-32)
+  - Display: 2.44" SPI OLED (128×64)
+  - Motor: DC motor (stepper TBD in later issues)
+  - Sensors: Index, home, encoder, 2 buttons
+  - LocoNet: UART2 at 16,667 bps
+- **GPIO map created**: 15 pins assigned (SPI display, encoder, buttons, motor,
+  LocoNet, relay), 15+ pins still free. See `docs/GPIO_REFERENCE.md`.
+- **SRD updated to v0.12**: HW-01 and HW-10/11 updated for ESP32 + SPI display.
+  OI-01 and OI-11 marked resolved.
+
+## 2026-10-07 - Build system & skeleton (session 2, part 1)
 
 - **PlatformIO configuration**: `platformio.ini` with `d1_mini` (firmware) and
   `native` (host tests) environments. Verified both build cleanly.

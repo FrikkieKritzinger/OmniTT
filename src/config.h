@@ -1,21 +1,44 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// Hardware pins (Wemos D1 Mini GPIO)
-#define PIN_MOTOR_A D6      // GPIO12 - Motor direction A
-#define PIN_MOTOR_B D5      // GPIO14 - Motor direction B
-#define PIN_MOTOR_PWM D8    // GPIO15 - Motor PWM (avoid as input!)
-#define PIN_ENCODER_A D1    // GPIO5 - Rotary encoder A
-#define PIN_ENCODER_B D2    // GPIO4 - Rotary encoder B
-#define PIN_ENCODER_BTN D3  // GPIO0 - Encoder button (avoid as input!)
-#define PIN_ESTOP D7        // GPIO13 - E-stop button
-#define PIN_OLED_SDA D4     // GPIO2 - I2C SDA (avoid as input!)
-#define PIN_OLED_SCL D0     // GPIO16 - I2C SCL
-#define PIN_LOCONET_RX D0   // GPIO16 - LocoNet RX
-#define PIN_LOCONET_TX D8   // GPIO15 - LocoNet TX (avoid as input!)
+// Hardware pins (ESP32 D1 Mini - WROOM-32 variant)
+// Platform: ESP32 Dual-Core, 30+ GPIO, no expander needed
+// SPI Display: 2.44" OLED (128×64)
 
-// Note: GPIO0, GPIO2, GPIO15 are boot-strapping pins - verify usage carefully.
-// GPIO layout may need revision pending OI-11 (GPIO budget / I/O expander decision).
+// SPI Display (2.44" OLED) - uses SPI2
+#define PIN_OLED_CLK   18   // GPIO18 - SPI2 Clock
+#define PIN_OLED_MOSI  23   // GPIO23 - SPI2 MOSI (Data)
+#define PIN_OLED_CS    5    // GPIO5  - Chip Select
+#define PIN_OLED_DC    27   // GPIO27 - Data/Command
+#define PIN_OLED_RES   26   // GPIO26 - Reset
+
+// Rotary Encoder (with integrated button)
+#define PIN_ENCODER_A   19  // GPIO19 - Encoder A (CLK)
+#define PIN_ENCODER_B   21  // GPIO21 - Encoder B (DT)
+#define PIN_ENCODER_BTN 22  // GPIO22 - Encoder button
+
+// User Input Buttons
+#define PIN_MENU_BTN    25  // GPIO25 - MENU button
+#define PIN_ESTOP       33  // GPIO33 - Emergency STOP button
+
+// LocoNet Interface (UART2)
+#define PIN_LOCONET_RX  16  // GPIO16 - LocoNet RX
+#define PIN_LOCONET_TX  17  // GPIO17 - LocoNet TX
+
+// Motor Control (DC motor with PWM speed)
+#define PIN_MOTOR_A     12  // GPIO12 - Motor direction A
+#define PIN_MOTOR_B     13  // GPIO13 - Motor direction B
+#define PIN_MOTOR_PWM   32  // GPIO32 - Motor PWM speed (0-255)
+
+// Index / Home Sensor
+#define PIN_INDEX_SENSOR 34 // GPIO34 - ADC capable, index pulse input
+
+// Bridge Power Relay (polarity invert, optional)
+#define PIN_RELAY_CTRL  2   // GPIO2  - Relay control output
+
+// Note on ESP32 strapping pins (safe to use after boot):
+// GPIO0, GPIO2, GPIO4, GPIO5, GPIO12, GPIO15 have internal pulls but can be used
+// as outputs. GPIO34-39 are input-only (no output capability).
 
 // Motor control defaults
 #define MOTOR_PWM_MAX 1023

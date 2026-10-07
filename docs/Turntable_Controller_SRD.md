@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.11 |
+| **Document status** | Draft v0.12 |
 | **Date** | 2026-10-07 |
-| **Target platform** | ESP8266 (Wemos D1 Mini) |
+| **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
 ---
 
@@ -77,7 +77,7 @@ The controller has these parts:
 
 | ID | Requirement |
 |---|---|
-| HW-01 | The controller shall use an ESP8266 microcontroller, specifically a Wemos D1 Mini module. |
+| HW-01 | The controller shall use an ESP32 microcontroller in a Wemos D1 Mini form factor (e.g., ESP32-WROOM-32 with D1 Mini pinout). |
 | HW-02 | The controller shall provide Wi-Fi in both station (client) and Access Point modes. |
 | HW-03 | The power input shall only be used to power the D1, OLED, and motor control modules and motors. |
 | HW-04 | The controller shall not provide power to the bridge, but switch power from supplied DCC or DC track power only |
@@ -88,8 +88,8 @@ The controller has these parts:
 
 | ID | Requirement |
 |---|---|
-| HW-10 | The controller shall have a graphical OLED display connected over I²C. |
-| HW-11 | The display shall be at least 3" diagonal. A 4" or 5" display is preferred. **[OPEN – OI-01]** |
+| HW-10 | The controller shall have a graphical OLED display connected over SPI. |
+| HW-11 | The display shall be at least 2.4" diagonal; 2.44" SPI OLED (128×64) is the standard. **[RESOLVED]** |
 | HW-12 | The controller shall have one EC11-type rotary encoder module with an integrated push button. |
 | HW-13 | The controller shall have a MENU input to switch between RUN mode and MENU mode. This may be a separate button or an encoder gesture. **[OPEN – OI-02]** |
 | HW-14 | The controller shall have an emergency STOP button. **[OPEN – OI-03]** |
@@ -321,9 +321,10 @@ Opens the Wi-Fi setup values.
 
 Questions and design considerations from the source material, still to be resolved.
 
-| ID | Topic | Question / consideration |
+| ID | Topic | Status & Decision |
 |---|---|---|
-| OI-01 | **Display** | A display of at least 3", preferably 4–5", is requested over I²C. I²C OLEDs are mostly ≤ 2.42". Larger OLEDs (for example a 3.12" SSD1322) usually use SPI. Confirm whether the size or the I²C interface takes priority. |
+| OI-01 | **Display** | ✅ **RESOLVED (2026-10-07):** Display priority is SIZE. Use 2.44" SPI OLED (128×64) to meet the 2.4" minimum requirement. SPI interface frees the I²C bus for sensors. |
+| OI-11 | **GPIO availability** | ✅ **RESOLVED (2026-10-07):** Upgrade from ESP8266 D1 Mini to ESP32 D1 Mini. Provides 30+ usable GPIO with no expander needed. Eliminates pin constraints, simplifies hardware, enables future expansion. |
 | OI-02 | **MENU input** | Use a dedicated MENU button, or an encoder gesture such as a double-click or long-press? Should a separate shortcut button also sit next to the encoder (HW-32)? |
 | OI-03 | **Emergency STOP input** | A separate dedicated STOP button, or an encoder/menu gesture? A dedicated button is generally safer. |
 | OI-04 | **Stepper connectors** | Three stepper connectors are listed. Confirm what they are for, such as different motor/driver pinouts or wiring variants. |
@@ -333,4 +334,3 @@ Questions and design considerations from the source material, still to be resolv
 | OI-08 | **Index detection (DC motor)** | With a DC motor, how does the controller detect that it has reached an index point? Options: Hall-effect sensor, IR/optical sensor, microswitch. |
 | OI-09 | **Home detection** | How is the home position detected? A dedicated sensor, or a distinguishable index? |
 | OI-10 | **Position after shutdown** | How is the position saved and confirmed after power loss? Covers EEPROM writes (DAT-02) and checking the position at startup. |
-| OI-11 | **GPIO availability** | The Wemos D1 Mini has about 11 usable GPIO pins. The listed interfaces need more than that: I²C ×2, encoder ×3, MENU, STOP, LocoNet ×2, stepper (step/dir/enable), DC motor ×2, index, relay. An I/O expander (for example MCP23017 on the shared I²C bus) or a larger MCU (for example an ESP32) will probably be needed. |
