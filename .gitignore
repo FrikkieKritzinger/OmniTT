@@ -1,0 +1,10 @@
+# PlatformIO
+.pio/
+.vscode/
+
+# Secrets - real values live here, never commit (use the .example template)
+*.local.h
+
+# Third-party protocol specs under redistribution-restricted licenses -
+# reference material only, never commit
+docs/*.pdf
