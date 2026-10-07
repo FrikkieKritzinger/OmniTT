@@ -59,6 +59,77 @@ Key behaviours to keep in mind:
 
 ---
 
+## Project Guidelines
+
+These guidelines are established principles reused from successful projects
+(particularly xpressnet-ecos-bridge). They ensure security, maintainability,
+and legal compliance throughout development.
+
+### Rule 1: Config Rules All
+Use compile-time configuration (`config.h`) to enable, disable, and tune features
+and capabilities. This allows:
+- Feature flags (e.g., `LOCONET_STOP_BROADCAST_ENABLED`)
+- Hardware pin assignments (flexible across board variants)
+- Timing and tuning parameters without code changes
+- Easy build variants without code duplication
+
+Examples:
+```cpp
+#define PIN_MOTOR_A D6
+#define MOTOR_PWM_MAX 1023
+#define LOCONET_ENABLED 1
+#define WIFI_SETUP_MODE_HOLD_TIME_MS 3000
+```
+
+Use compile-time constants, not magic numbers or preprocessor string hacks.
+
+### Rule 2: No Secrets in Code (Hard Rule)
+**Never commit credentials, keys, or sensitive values in code or git history.**
+- Real Wi-Fi credentials → `wifi_credentials.local.h` (gitignored)
+- Committed version → `wifi_credentials.local.h.example` (template only)
+- Real API keys / tokens → `.local.h` file with a committed `.example`
+- Check file contents before committing anything that *could* be a secret
+  (even innocuous-looking filenames)
+
+If a secret is ever found committed, treat it as **compromised**: immediately
+revoke it (change Wi-Fi password, rotate API key) and check git history
+(`git log --all -p -- <file>`) to see how long it was exposed.
+
+### Rule 3: External Libraries – Credit, Don't Copy
+When using external libraries (e.g., LocoNet, Adafruit SSD1306):
+- Declare them in `platformio.ini` (PlatformIO installs from package manager)
+- **Do not add `.zip` or source files to the repo** (bloats git history, licensing confusion)
+- Credit the publisher in code comments or a `CREDITS.md` file
+- Keep library usage isolated (wrapper modules if needed) for easy swaps
+
+Example in `platformio.ini`:
+```ini
+lib_deps =
+    mrrwa/LocoNet@1.1.9
+    adafruit/Adafruit SSD1306@2.5.11
+```
+
+Rationale: PlatformIO handles versioning and updates cleanly. A 1MB library zip
+in git becomes a 10MB history blob; contributors and CI pipelines suffer.
+
+### Rule 4: Honor Document Licenses
+Before including any vendor spec, manual, reference, or third-party document
+(PDF, datasheet, protocol spec):
+1. **Check the license** (ESU, Roco, Digitrax, Digitax, etc. often forbid redistribution)
+2. **Confirm it's permissible to commit** to a public/shared repo
+3. **If restricted**: gitignore it locally, store it outside the repo, and summarize/reference it in docs instead
+4. **If permitted**: commit it with a `LICENSE` header noting the source and terms
+
+Examples:
+- ✅ **Can commit**: GPL/MIT/Creative Commons docs, self-authored specs
+- ❌ **Cannot commit**: ESU, Roco, Digitrax datasheets (proprietary / commercial use restricted)
+- 🟡 **Reference only**: Summarize findings in `docs/` and link to where the real doc lives
+
+Current status: `docs/Turntable_Controller_SRD.md` is user-authored (no license restriction).
+Any vendor PDFs must be confirmed before addition.
+
+---
+
 ## Code Style & Conventions
 
 (Starting conventions, same style as the user's other ESP8266 projects - adjust
