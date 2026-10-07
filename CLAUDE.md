@@ -52,9 +52,10 @@ Key behaviours to keep in mind:
   Open issues OI-01..OI-11 still to resolve, most importantly OI-01 (display
   size vs I²C), OI-05/08/09 (index and home sensing) and OI-11 (GPIO budget -
   probably needs an I/O expander or an ESP32).
-- No firmware code yet.
+- ✅ **Build system set up** (2026-10-07): PlatformIO, skeleton main.cpp, test framework (Unity), config templates.
+  Firmware compiles cleanly; native tests pass. RAM 34.4%, Flash 25.4%.
 
-**Next**: resolve the open issues, then agree an architecture and phase plan.
+**Next**: resolve the open issues, then implement subsystems (motor control, encoder, OLED, EEPROM config, LocoNet).
 
 ---
 
@@ -83,8 +84,22 @@ here if OmniTT needs something different.)
 
 ```
 OmniTT/
+├── platformio.ini                     Build configuration (d1_mini & native test)
 ├── CLAUDE.md                          This file
+├── .gitignore                         (*.local.h, build artefacts, restricted PDFs)
+├── src/
+│   ├── main.cpp                       Firmware entry point (setup/loop skeleton)
+│   ├── version.h                      Firmware version & build timestamp
+│   ├── config.h                       Compile-time defaults (pins, timing, EEPROM layout)
+│   └── wifi_credentials.local.h.example  Template for secrets (copy & fill locally)
+├── test/
+│   └── test_config.cpp                Example unit test (Unity framework)
+├── lib/
+│   └── (external packages, managed by PlatformIO)
 └── docs/
-    ├── Turntable_Controller_SRD.md    System Requirements Specification
+    ├── BUILD.md                       Build commands & development guide
+    ├── Turntable_Controller_SRD.md    System Requirements Specification (v0.11)
     └── CHANGELOG.md                   Dated session history
 ```
+
+See [docs/BUILD.md](docs/BUILD.md) for build commands and project structure details.
