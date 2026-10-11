@@ -2,6 +2,16 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Shortcut buttons added (session 3, part 3)
+
+- **Shortcut buttons** (section 5.5, RUN-40..43): PRESET A and PRESET B recall stored
+  exits. Holding a preset for CFG-11 stores the current exit. LAST EXIT returns to
+  the previous exit. One spare button remains.
+- **Scope**: accessory and layout control (doors, lights) stated as out of scope;
+  these belong to separate decoders.
+- **EEPROM**: presets and last exit stored (DAT-05).
+- **SRD v0.15**: section 1.2, section 5.5, CFG-11 and DAT-05 added.
+
 ## 2026-10-11 - Status ring added (session 3, part 2)
 
 - **Status ring**: 12-pixel NeoPixel ring under the encoder knob (HW-16). Ring

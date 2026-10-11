@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.14 |
+| **Document status** | Draft v0.15 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -23,6 +23,8 @@ The controller covers:
 - Local configuration through an OLED display and rotary encoder.
 - Remote control through LocoNet.
 - Firmware updates over Wi-Fi.
+
+Out of scope: accessory and layout control (for example roundhouse doors or shed lights). These belong to separate decoders, not to the turntable controller.
 
 ### 1.3 Definitions
 
@@ -183,6 +185,17 @@ The status ring (HW-16) shows the controller state from across the room. Detaile
 | RUN-32 | When the bridge is locked at a known position and idle, the status ring shall show green. |
 | RUN-33 | While an emergency STOP is active, the status ring shall show solid red. |
 
+### 5.5 Shortcut buttons
+
+The console has four spare buttons (HW-32). Three are assigned to shortcuts; one is spare.
+
+| ID | Requirement |
+|---|---|
+| RUN-40 | Pressing the PRESET A or PRESET B button shall move the bridge to the exit stored for that preset, as a local selection (RUN-06). |
+| RUN-41 | Holding a PRESET button for the preset hold time (CFG-11) shall store the current exit as that preset. |
+| RUN-42 | Pressing the LAST EXIT button shall move the bridge to the exit it occupied before the current one. |
+| RUN-43 | Shortcut actions shall follow the same rules as encoder selection: ignored in MENU mode (MD-05), and not acted on while the bridge is moving (HW-06). |
+
 ---
 
 ## 6. MENU Mode Requirements
@@ -265,6 +278,7 @@ Opens the turntable setup values.
 | CFG-08 | **Index Hold Time** | Time | Applies to DC motors only. The time used to pass over intermediate index points so the bridge stops only at the selected one. Only used when the target is not the next index, for example moving from exit 2 to exit 4. |
 | CFG-09 | **Home** | Procedure | Sets the home position, which is the reference for all other positions. |
 | CFG-10 | *Other* | — | **[OPEN – OI-07]** Any additional configuration values. |
+| CFG-11 | **Preset Hold Time** | Time | How long a PRESET button must be held to store the current exit as that preset (RUN-41). |
 
 ### 7.4 Config → Exit configuration
 Sets the position, number and name of each exit.
@@ -328,6 +342,7 @@ Opens the Wi-Fi setup values.
 | DAT-02 | The current bridge position shall be stored in EEPROM (RUN-20). |
 | DAT-03 | Factory defaults shall be stored in a reserved region that normal operation never overwrites (MNU-10). |
 | DAT-04 | Position writes should be designed to limit flash wear, for example by writing only when motion completes rather than continuously. |
+| DAT-05 | Preset exits (RUN-40/41) and the last exit (RUN-42) shall be stored in EEPROM and kept across power cycles. |
 
 ---
 
