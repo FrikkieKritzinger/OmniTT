@@ -2,6 +2,20 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Input layout and enclosure (session 3)
+
+- **Enclosure chosen**: Sanhe 18-33 console enclosure. It has a rectangular display
+  window, an encoder with knob to the right, and six button positions in the
+  bottom-right.
+- **Resolved OI-02 (MENU input)**: dedicated MENU push button. The encoder stays
+  for navigation, and its click gives haptic feedback. Mode switching uses the
+  button, not encoder gestures.
+- **Resolved OI-03 (E-STOP input)**: dedicated E-STOP push button among the six
+  console buttons. Four buttons remain spare.
+- **Physical layout** (HW-30..32) reworked for the enclosure. The MENU button no
+  longer needs to sit next to the display.
+- **SRD v0.13**: HW-13, HW-14, HW-30..32 and OI-02/03 updated.
+
 ## 2026-10-07 - Motor control & position tracking finalized (session 2, part 3)
 
 - **Resolved OI-04 (Motor driver)**: TB6612FNG Dual H-Bridge modules. 4 GPIO pins

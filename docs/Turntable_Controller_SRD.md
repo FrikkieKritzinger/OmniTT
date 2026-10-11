@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.12 |
+| **Document status** | Draft v0.13 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -91,8 +91,8 @@ The controller has these parts:
 | HW-10 | The controller shall have a graphical OLED display connected over SPI. |
 | HW-11 | The display shall be at least 2.4" diagonal; 2.44" SPI OLED (128×64) is the standard. **[RESOLVED]** |
 | HW-12 | The controller shall have one EC11-type rotary encoder module with an integrated push button. |
-| HW-13 | The controller shall have a MENU input to switch between RUN mode and MENU mode. This may be a separate button or an encoder gesture. **[OPEN – OI-02]** |
-| HW-14 | The controller shall have an emergency STOP button. **[OPEN – OI-03]** |
+| HW-13 | The controller shall have a dedicated MENU push button to switch between RUN mode and MENU mode. **[RESOLVED – OI-02]** |
+| HW-14 | The controller shall have a dedicated emergency STOP push button. **[RESOLVED – OI-03]** |
 | HW-15 | The eStop button shall stop bridge movement immediately |
 
 ### 3.3 Electrical interfaces
@@ -112,9 +112,9 @@ The controller has these parts:
 
 | ID | Requirement |
 |---|---|
-| HW-30 | The OLED display should be mounted top-centre on the enclosure front. |
-| HW-31 | The rotary encoder should be mounted bottom-centre on the enclosure front. |
-| HW-32 | A separate MENU shortcut button, if fitted, should be mounted next to the screen, aligned to the top right of the screen. **[OPEN – OI-02]** |
+| HW-30 | The enclosure is a Sanhe 18-33 console enclosure. The OLED display sits in the rectangular display window. |
+| HW-31 | The rotary encoder with knob sits to the right of the display window, as the enclosure provides. |
+| HW-32 | Six button positions sit in the bottom-right area of the console. The MENU and E-STOP buttons are placed here; the remaining four are spare and not assigned. The MENU button does not need to be adjacent to the display. **[RESOLVED – OI-02/03]** |
 
 ---
 
@@ -329,8 +329,8 @@ Questions and design considerations from the source material, still to be resolv
 | OI-05 | **Position tracking** | ✅ **RESOLVED (2026-10-07):** Time-based tracking via calibrated motor timing. Learn milliseconds-per-position via menu option "Index Hold Time". Dead-reckoning between home passes. Solenoid auto-locks at each index. First move after power-up recalibrates position via home sensor. |
 | OI-08 | **Home detection** | ✅ **RESOLVED (2026-10-07):** Microswitch at home position (exit 0). Detects when bridge passes home. Used to recalibrate position on first move after power-up. GPIO35 assigned for home sensor input. |
 | OI-09 | **Startup behavior** | ✅ **RESOLVED (2026-10-07):** Display bridge icon flashing RED from startup until first home pass. Once home sensor detects, icon turns GREEN and position is set to HOME. Then continue to target exit. Subsequent moves use dead-reckoning (no red flash). Most bridges remain where left, so this is pragmatic and fast. |
-| OI-02 | **MENU input** | Use a dedicated MENU button, or an encoder gesture such as a double-click or long-press? Should a separate shortcut button also sit next to the encoder (HW-32)? |
-| OI-03 | **Emergency STOP input** | A separate dedicated STOP button, or an encoder/menu gesture? A dedicated button is generally safer. |
+| OI-02 | **MENU input** | ✅ **RESOLVED (2026-10-11):** Dedicated MENU push button. The encoder stays for navigation, with its click providing haptic feedback. Button placement does not need to be next to the display. |
+| OI-03 | **Emergency STOP input** | ✅ **RESOLVED (2026-10-11):** Dedicated E-STOP push button, placed among the six console buttons. |
 | OI-06 | **Web configuration** | Should configuration also be possible from a web page, in addition to the local menu? |
 | OI-07 | **Additional config values** | Are any other configuration values needed? Candidates: motor speed, acceleration/deceleration, relay crossover angle, display brightness. |
 | OI-10 | **Position persistence** | Position saved in EEPROM when motion completes (DAT-02/04). On startup, EEPROM position used as assumption; first move recalibrates via home sensor. No explicit confirmation needed beyond home sensor pass. |
