@@ -2,6 +2,19 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Status ring added (session 3, part 2)
+
+- **Status ring**: 12-pixel NeoPixel ring under the encoder knob (HW-16). Ring
+  inside diameter 35 mm, outside 50 mm. Paired with the 35 mm aluminium knob, so
+  every pixel stays visible around the knob edge with about 1 mm clearance. The
+  42 mm knob would hide up to half the pixels, so it is not used with this ring.
+- **States** (RUN-30..33): red pulse while position is unknown, amber while moving,
+  green when locked and idle, solid red during E-stop. Detailed information stays
+  on the OLED.
+- **Scope**: a planned feature, not optional. Implementation deferred to a later
+  phase.
+- **SRD v0.14**: HW-16 and section 5.4 added.
+
 ## 2026-10-11 - Input layout and enclosure (session 3)
 
 - **Enclosure chosen**: Sanhe 18-33 console enclosure. It has a rectangular display

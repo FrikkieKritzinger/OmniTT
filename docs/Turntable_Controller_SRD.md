@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.13 |
+| **Document status** | Draft v0.14 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -94,6 +94,7 @@ The controller has these parts:
 | HW-13 | The controller shall have a dedicated MENU push button to switch between RUN mode and MENU mode. **[RESOLVED – OI-02]** |
 | HW-14 | The controller shall have a dedicated emergency STOP push button. **[RESOLVED – OI-03]** |
 | HW-15 | The eStop button shall stop bridge movement immediately |
+| HW-16 | The controller shall have a 12-pixel addressable RGB (NeoPixel) status ring mounted under the rotary encoder knob. The ring's 35 mm inside diameter fits the 35 mm aluminium knob, leaving the pixels visible around the knob edge. Implementation deferred to a later phase. |
 
 ### 3.3 Electrical interfaces
 
@@ -168,6 +169,19 @@ The controller shall have two top-level modes:
 |---|---|
 | RUN-20 | The controller shall keep the current bridge position in non-volatile memory (EEPROM), so it knows where it is at startup without seeking home every time. |
 | RUN-21 | During normal operation, the controller shall keep track of the home position so it cannot lose its position. For example, it shall re-verify home whenever the bridge passes it. |
+
+---
+
+### 5.4 Status ring
+
+The status ring (HW-16) shows the controller state from across the room. Detailed information stays on the OLED.
+
+| ID | Requirement |
+|---|---|
+| RUN-30 | While the bridge position is unknown (before the first home pass, OI-09), the status ring shall pulse red. |
+| RUN-31 | While a move is in progress, the status ring shall show amber. |
+| RUN-32 | When the bridge is locked at a known position and idle, the status ring shall show green. |
+| RUN-33 | While an emergency STOP is active, the status ring shall show solid red. |
 
 ---
 
