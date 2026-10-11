@@ -2,6 +2,22 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Pin map finalised, relay deferred (session 3, part 9)
+
+- **Relay deferred** to a later phase (HW-05, CFG-05). It is needed for relay builds,
+  which invert track power when the TT has no slip rings, or with an external reverse
+  loop on DCC layouts. The initial build has no relay pin.
+- **OLED CS hard-wired low**: the OLED is the only SPI device, which frees GPIO5.
+- **Pin map** (21 pins, `src/config.h`): motor GPIO13/32, solenoid GPIO14/4, OLED
+  GPIO18/23/27/26, encoder GPIO19/21/22, MENU GPIO25, E-STOP GPIO33, shortcut buttons
+  GPIO34/36/39/15, LocoNet GPIO16/17, home GPIO35, status ring GPIO5.
+- **Strapping pins**: GPIO5 (status ring) and GPIO15 (SPEED) only, where boot state is
+  harmless. GPIO12 removed. GPIO0 and GPIO2 unused.
+- **Input-only pins** (GPIO34/35/36/39) need external pull-ups for their buttons and the
+  home sensor.
+- **OI-14 resolved**, no I²C expander used. **SRD v0.21**.
+- `config.h` no longer defines `I2C_ADDRESS_DISPLAY`, which contradicted the SPI decision.
+
 ## 2026-10-11 - Lock solenoid and motor driver resolved (session 3, part 8)
 
 - **Resolved OI-12**: the solenoid runs from TB6612FNG channel B and the motor from

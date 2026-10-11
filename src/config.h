@@ -2,43 +2,44 @@
 #define CONFIG_H
 
 // Hardware pins (ESP32 D1 Mini - WROOM-32 variant)
-// Platform: ESP32 Dual-Core, 30+ GPIO, no expander needed
-// SPI Display: 2.44" OLED (128×64)
+// Strapping pins are used only where their state at boot is harmless. See docs/GPIO_REFERENCE.md.
 
-// SPI Display (2.44" OLED) - uses SPI2
-#define PIN_OLED_CLK   18   // GPIO18 - SPI2 Clock
-#define PIN_OLED_MOSI  23   // GPIO23 - SPI2 MOSI (Data)
-#define PIN_OLED_CS    5    // GPIO5  - Chip Select
-#define PIN_OLED_DC    27   // GPIO27 - Data/Command
-#define PIN_OLED_RES   26   // GPIO26 - Reset
+// SPI Display (2.44" OLED, 128x64). CS is hard-wired low: the OLED is the only SPI device.
+#define PIN_OLED_CLK    18  // GPIO18 - SPI2 clock
+#define PIN_OLED_MOSI   23  // GPIO23 - SPI2 data
+#define PIN_OLED_DC     27  // GPIO27 - Data/command
+#define PIN_OLED_RES    26  // GPIO26 - Reset
 
-// Rotary Encoder (with integrated button)
-#define PIN_ENCODER_A   19  // GPIO19 - Encoder A (CLK)
-#define PIN_ENCODER_B   21  // GPIO21 - Encoder B (DT)
-#define PIN_ENCODER_BTN 22  // GPIO22 - Encoder button
+// Rotary encoder (with integrated button)
+#define PIN_ENCODER_A    19  // GPIO19 - Encoder A
+#define PIN_ENCODER_B    21  // GPIO21 - Encoder B
+#define PIN_ENCODER_BTN  22  // GPIO22 - Encoder button
 
-// User Input Buttons
-#define PIN_MENU_BTN    25  // GPIO25 - MENU button
-#define PIN_ESTOP       33  // GPIO33 - Emergency STOP button
+// Console buttons
+#define PIN_MENU_BTN     25  // GPIO25 - MENU
+#define PIN_ESTOP        33  // GPIO33 - Emergency STOP
+#define PIN_PRESET_A_BTN 34  // GPIO34 - PRESET A (input-only, external pull-up)
+#define PIN_PRESET_B_BTN 36  // GPIO36 - PRESET B (input-only, external pull-up)
+#define PIN_LAST_EXIT_BTN 39 // GPIO39 - LAST EXIT (input-only, external pull-up)
+#define PIN_SPEED_BTN    15  // GPIO15 - SPEED toggle (strapping; pulled up at boot)
 
-// LocoNet Interface (UART2)
-#define PIN_LOCONET_RX  16  // GPIO16 - LocoNet RX
-#define PIN_LOCONET_TX  17  // GPIO17 - LocoNet TX
+// LocoNet interface (UART2)
+#define PIN_LOCONET_RX   16  // GPIO16 - LocoNet RX
+#define PIN_LOCONET_TX   17  // GPIO17 - LocoNet TX
 
-// Motor Control (DC motor with PWM speed)
-#define PIN_MOTOR_A     12  // GPIO12 - Motor direction A
-#define PIN_MOTOR_B     13  // GPIO13 - Motor direction B
-#define PIN_MOTOR_PWM   32  // GPIO32 - Motor PWM speed (0-255)
+// Motor (TB6612FNG channel A)
+#define PIN_MOTOR_DIR1   13  // GPIO13 - Motor direction
+#define PIN_MOTOR_PWM1   32  // GPIO32 - Motor PWM speed
 
-// Home Sensor (Position Recalibration)
-#define PIN_HOME_SENSOR 35  // GPIO35 - Microswitch at home position (exit 0)
+// Lock solenoid (TB6612FNG channel B)
+#define PIN_SOLENOID_DIR2 14 // GPIO14 - Solenoid direction (drive high to hold open)
+#define PIN_SOLENOID_PWM2  4 // GPIO4  - Solenoid PWM (drive high to hold open)
 
-// Bridge Power Relay (polarity invert, optional)
-#define PIN_RELAY_CTRL  2   // GPIO2  - Relay control output
+// Home sensor (input-only, external pull-up)
+#define PIN_HOME_SENSOR  35  // GPIO35 - Microswitch at home position (exit 0)
 
-// Note on ESP32 strapping pins (safe to use after boot):
-// GPIO0, GPIO2, GPIO4, GPIO5, GPIO12, GPIO15 have internal pulls but can be used
-// as outputs. GPIO34-39 are input-only (no output capability).
+// Status ring (NeoPixel data, strapping pin; boot-time level only flickers the LEDs)
+#define PIN_STATUS_RING   5  // GPIO5  - WS2812 data
 
 // Motor control defaults
 #define MOTOR_PWM_MAX 1023
@@ -48,7 +49,6 @@
 // Display
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
-#define I2C_ADDRESS_DISPLAY 0x3C
 
 // EEPROM
 #define EEPROM_SIZE 4096

@@ -1,111 +1,73 @@
 # GPIO Pin Reference
 
-**Target Platform**: ESP32 D1 Mini (Wemos form factor with WROOM-32)  
-**Resolution**: OI-01 (Display) and OI-11 (GPIO Budget) — 2026-10-07
+**Target**: ESP32 D1 Mini (Wemos form factor, WROOM-32)
+**Source of truth**: `src/config.h` (the `PIN_*` constants). This page is a summary.
+**Pin map finalised**: 2026-10-11 (SRD v0.21, OI-14)
 
 ---
 
-## Pin Assignments Summary
+## Initial build: 21 pins
 
-| Function | GPIO | D1 Label | Interface | Notes |
-|---|---|---|---|---|
-| **Display** | | | **SPI2** | 2.44" OLED (128×64) |
-| OLED Clock | 18 | D18 | SPI CLK | Display clock |
-| OLED Data (MOSI) | 23 | D23 | SPI MOSI | Display data line |
-| OLED Chip Select | 5 | D5 | GPIO | Chip select (active low) |
-| OLED Data/Command | 27 | D27 | GPIO | Command vs data mode |
-| OLED Reset | 26 | D26 | GPIO | Reset line (active low) |
-| **Rotary Encoder** | | | **GPIO** | EC11 with push button |
-| Encoder A (CLK) | 19 | D19 | GPIO | Phase A output |
-| Encoder B (DT) | 21 | D21 | GPIO | Phase B output |
-| Encoder Button | 22 | D22 | GPIO | Push button (active low) |
-| **User Buttons** | | | **GPIO** | Direct digital inputs |
-| MENU Button | 25 | D25 | GPIO | Config mode trigger (active low) |
-| E-STOP Button | 33 | D33 | GPIO | Emergency stop (active low) |
-| **LocoNet** | | | **UART2** | Accessory decoder commands |
-| RX (input) | 16 | RX2 | UART | Receive from LocoNet bus |
-| TX (output) | 17 | TX2 | UART | Transmit to LocoNet bus |
-| **Motor Control** | | | **GPIO + PWM** | DC motor (stepper TBD) |
-| Direction A | 12 | D12 | GPIO | Motor direction line A |
-| Direction B | 13 | D13 | GPIO | Motor direction line B |
-| PWM Speed | 32 | D32 | GPIO+PWM | Motor speed (0–255 or 0–1023) |
-| **Sensors** | | | **GPIO** | Position feedback |
-| Home Sensor | 35 | D35 | GPIO | Microswitch at home (exit 0) — recalibration trigger (input only) |
-| **Power & Relay** | | | **GPIO** | Bridge power control |
-| Relay Control | 2 | D2 | GPIO | Bridge power/polarity invert |
-
----
-
-## Usage Notes
-
-### SPI Display (2.44" OLED)
-- Uses SPI2 (HSPI) peripheral
-- Configuration: see `src/config.h` `PIN_OLED_*` constants
-- Driver: Adafruit_SSD1306 or equivalent for SPI mode
-- Init sequence: reset low → delay → reset high → begin SPI
-
-### Rotary Encoder
-- A (CLK) and B (DT) decode direction via quadrature
-- Button is debounced (mechanical switch)
-- Pull-ups: internal GPIO pull-ups recommended (10k typical)
-
-### LocoNet UART
-- UART2 (separate from debug UART0)
-- Baud rate: 16,667 bps (non-standard, requires custom UART config)
-- Library: `LocoNet.zip` (mrrwa, ESP32-compatible with SW UART adapter)
-- Note: ESP32 hardware UART2 may need pin swaps depending on board variant
-
-### Motor PWM
-- GPIO32 supports PWM (ledc peripheral)
-- Frequency: typically 1 kHz (configurable)
-- Resolution: 8-bit (0–255) or 10-bit (0–1023)
-- Direction lines (GPIO12/13) set H-bridge direction
-
-### Index Sensor
-- GPIO34 is input-only (ADC capable)
-- Can be digital (microswitch) or analog (Hall-effect / optical)
-- Pull-up via sensor circuit (not internal GPIO pull-up)
-
----
-
-## Strapping & Boot Pins
-
-The ESP32 uses internal pull-ups/pull-downs on certain GPIO for boot configuration:
-
-| GPIO | Pull | State at Boot | Usage |
+| Function | GPIO | Interface | Notes |
 |---|---|---|---|
-| GPIO0 | Up | High | JTAG/Flash mode; can use as output after boot |
-| GPIO2 | Down | Low | Boot; safe after boot; we use for relay control |
-| GPIO4 | Down | Low | Boot; can use after boot |
-| GPIO5 | Up | High | Strapping; we use as SPI CS |
-| GPIO12 | Down | Low | Boot voltage select; safe after boot; we use for motor |
-| GPIO15 | Down | Low | Boot; safe after boot |
-
-**All assigned GPIO are safe after boot**. No conflicts with strap pin requirements.
-
----
-
-## Total GPIO Usage
-
-- **Assigned**: 16 GPIO pins (display, encoder, buttons, motor, LocoNet, home sensor, relay)
-- **Available on ESP32**: 30+ usable GPIO
-- **Headroom**: 14+ pins free for future sensors, SD card, expansion
-
-### Pins Still Available
-GPIO 1, 3, 6–11 (flash), 14, 15, 24, 28–31, 35–39 (most are input-only)
-
----
-
-## Future Expansions
-
-If you need additional sensors or features:
-- **SD card**: use SPI1 (GPIO8–11)
-- **Additional ADC sensors**: GPIO35, GPIO36, GPIO37, GPIO38, GPIO39
-- **I²C devices**: GPIO1 (SCL), GPIO3 (SDA) — or use alternate I²C on GPIO21, GPIO22 if needed
-- **Extra buttons or digital inputs**: abundant GPIO (14, 15, 24, 28–31, etc.)
+| OLED clock | 18 | SPI2 CLK | 2.44" SPI OLED, 128x64 |
+| OLED data (MOSI) | 23 | SPI2 MOSI | |
+| OLED data/command | 27 | GPIO | |
+| OLED reset | 26 | GPIO | |
+| OLED chip select | — | — | Hard-wired low. The OLED is the only SPI device |
+| Encoder A | 19 | GPIO | EC11 |
+| Encoder B | 21 | GPIO | EC11 |
+| Encoder button | 22 | GPIO | Pull-up |
+| MENU button | 25 | GPIO | Pull-up |
+| E-STOP button | 33 | GPIO | Pull-up |
+| PRESET A button | 34 | GPIO, input-only | External pull-up required |
+| PRESET B button | 36 | GPIO, input-only | External pull-up required |
+| LAST EXIT button | 39 | GPIO, input-only | External pull-up required |
+| SPEED button | 15 | GPIO, strapping | Pulled up at boot. Holding it at power-up only silences the boot log |
+| LocoNet RX | 16 | UART2 RX | |
+| LocoNet TX | 17 | UART2 TX | |
+| Motor direction (DIR1) | 13 | GPIO | TB6612FNG channel A |
+| Motor PWM (PWM1) | 32 | PWM | TB6612FNG channel A. External pull-down |
+| Solenoid direction (DIR2) | 14 | GPIO | TB6612FNG channel B. External pull-down |
+| Solenoid PWM (PWM2) | 4 | PWM | TB6612FNG channel B. External pull-down |
+| Home sensor | 35 | GPIO, input-only | Microswitch. External pull-up required |
+| Status ring data | 5 | GPIO, strapping | WS2812 data. A wrong level at boot only flickers the LEDs |
 
 ---
 
-## Cross-Reference to Code
+## Strapping pins (ESP32)
 
-See `src/config.h` for the `#define PIN_*` constants used throughout the firmware.
+| GPIO | Used | Rule |
+|---|---|---|
+| GPIO0 | No | Pulled up. Low at reset enters download mode. Leave unused |
+| GPIO2 | No | Unused in the initial build. Reserved for the optional relay in a later phase |
+| GPIO5 | Yes | Status ring data. Harmless at boot |
+| GPIO12 | No | Must stay low at boot (flash voltage). Keep unused |
+| GPIO15 | Yes | SPEED button. Input only, pulled up at boot |
+
+---
+
+## Reserved for later phases
+
+- **Relay** (optional, HW-05/CFG-05): not in the initial build. Needs a pin when a relay
+  build is added. GPIO2 is a candidate, with a transistor driver and pull-down so the
+  relay stays off at boot.
+- **Other turntable types** (phase 6): stepper driver and Hall-effect indexing will need
+  more pins. Re-check the budget at that point.
+
+---
+
+## Input-only pins
+
+GPIO34, GPIO35, GPIO36 and GPIO39 have no internal pull-ups or pull-downs. They are used
+for the PRESET A, PRESET B, LAST EXIT and home sensor inputs, and each needs an external
+pull-up resistor.
+
+---
+
+## Boot safety
+
+- The motor and solenoid PWM and direction pins need external pull-downs so the outputs
+  stay off during reset.
+- Pins used by strapping functions are limited to the two listed above, and only where
+  their boot state is harmless.

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.20 |
+| **Document status** | Draft v0.21 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -83,7 +83,7 @@ The controller has these parts:
 | HW-02 | The controller shall provide Wi-Fi in both station (client) and Access Point modes. |
 | HW-03 | The power input shall only be used to power the D1, OLED, and motor control modules and motors. |
 | HW-04 | The controller shall not provide power to the bridge, but switch power from supplied DCC or DC track power only |
-| HW-05 | The default configuration will pass track power through, and rely on the TT to invert polarity. This can be changed in config to allow an onboard relay to handle power inverting to the bridge |
+| HW-05 | The default configuration will pass track power through, and rely on the TT to invert polarity. This can be changed in config to allow an onboard relay to handle power inverting to the bridge. **[DEFERRED – relay build, later phase]** |
 | HW-06 | Local selections and command will take preference over Loconet. ie loconet will only be applied if the bridge is not already busy with another movement |
 
 ### 3.2 User interface hardware
@@ -383,4 +383,4 @@ Questions and design considerations from the source material, still to be resolv
 | OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |
 | OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (GPIO4) and DIR2 (GPIO14). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
 | OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
-| OI-14 | **Pin budget and strapping pins** | The firmware needs about 23 pins. The ESP32 has about 19 usable non-strapping pins, counting the four input-only pins. GPIO12 (motor direction A) is a strapping pin and must move. Options: use strapping pins only where boot state is harmless (for example GPIO5 for OLED CS, GPIO2 for the optional relay, or a button on GPIO0 that is not held at boot); drop the optional relay; or move some buttons to one of the spare I²C expanders. Decision needed before the Phase 1 pin map. |
+| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 21 pins. OLED CS is hard-wired low, freeing GPIO5. Strapping pins are used only where their boot state is harmless: GPIO5 (status ring data), GPIO15 (SPEED button, pulled up at boot). GPIO12 is no longer used, and GPIO0 and GPIO2 are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
