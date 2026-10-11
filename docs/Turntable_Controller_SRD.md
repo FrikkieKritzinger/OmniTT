@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.16 |
+| **Document status** | Draft v0.17 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -117,7 +117,7 @@ The controller has these parts:
 |---|---|
 | HW-30 | The enclosure is a Sanhe 18-33 console enclosure. The OLED display sits in the rectangular display window. |
 | HW-31 | The rotary encoder with knob sits to the right of the display window, as the enclosure provides. |
-| HW-32 | Six button positions sit in the bottom-right area of the console. The MENU and E-STOP buttons are placed here; the remaining four are spare and not assigned. The MENU button does not need to be adjacent to the display. **[RESOLVED – OI-02/03]** |
+| HW-32 | Six button positions sit in the bottom-right area of the console. The MENU and E-STOP buttons are placed here; the remaining four are assigned to shortcuts (section 5.5). The MENU button does not need to be adjacent to the display. **[RESOLVED – OI-02/03]** |
 
 ---
 
@@ -187,7 +187,7 @@ The status ring (HW-16) shows the controller state from across the room. Detaile
 
 ### 5.5 Shortcut buttons
 
-The console has four spare buttons (HW-32). Three are assigned to shortcuts; one is spare.
+The four console buttons not used for MENU or E-STOP (HW-32) are assigned to shortcuts.
 
 | ID | Requirement |
 |---|---|
@@ -195,6 +195,7 @@ The console has four spare buttons (HW-32). Three are assigned to shortcuts; one
 | RUN-41 | Holding a PRESET button for the preset hold time (CFG-11) shall store the current exit as that preset. |
 | RUN-42 | Pressing the LAST EXIT button shall move the bridge to the exit it occupied before the current one. |
 | RUN-43 | Shortcut actions shall follow the same rules as encoder selection: ignored in MENU mode (MD-05), and not acted on while the bridge is moving (HW-06). |
+| RUN-44 | Pressing the SPEED button shall toggle the move mode between NORMAL and RAPID. The selected mode applies to the next move and persists across power cycles (DAT-06). RAPID is a hard lockout: it is disabled until the bridge position is determined (the first home pass, OI-09). Once determined, by first home pass, dead reckoning or subsequent home passes, RAPID is available. No configuration setting or operator action overrides this lockout. |
 
 ---
 
@@ -283,8 +284,14 @@ Opens the turntable setup values.
 | CFG-07 | **Configure Steps** | Integer | The number of steps per 360° rotation. Applies to stepper motors only. |
 | CFG-08 | **Index Hold Time** | Time | Applies to DC motors only. The time used to pass over intermediate index points so the bridge stops only at the selected one. Only used when the target is not the next index, for example moving from exit 2 to exit 4. |
 | CFG-09 | **Home** | Procedure | Sets the home position, which is the reference for all other positions. |
-| CFG-10 | *Other* | — | **[OPEN – OI-07]** Any additional configuration values. |
+| CFG-10 | *Other* | — | Reserved for future configuration values. |
 | CFG-11 | **Preset Hold Time** | Time | How long a PRESET button must be held to store the current exit as that preset (RUN-41). |
+| CFG-12 | **Normal Move Speed** | 0–100 % | Motor PWM speed for NORMAL moves (RUN-44). Used for short moves and when the position is still being found. |
+| CFG-13 | **Rapid Move Speed** | 0–100 % | Motor PWM speed for RAPID moves (RUN-44). |
+| CFG-14 | **Move Timeout** | Time | Maximum duration of a move. If exceeded, the controller stops the motor and reports an error. |
+| CFG-15 | **Ramp Time** | Time | Soft-start acceleration time to reduce mechanical wear. 0 disables the ramp. |
+| CFG-16 | **Status Ring Brightness** | 0–100 % | Brightness of the status ring (HW-16). |
+| CFG-17 | **OLED Brightness** | 0–100 % | Brightness (contrast) of the OLED display. |
 
 ### 7.4 Config → Exit configuration
 Sets the position, number and name of each exit.
@@ -349,6 +356,7 @@ Opens the Wi-Fi setup values.
 | DAT-03 | Factory defaults shall be stored in a reserved region that normal operation never overwrites (MNU-10). |
 | DAT-04 | Position writes should be designed to limit flash wear, for example by writing only when motion completes rather than continuously. |
 | DAT-05 | Preset exits (RUN-40/41) and the last exit (RUN-42) shall be stored in EEPROM and kept across power cycles. |
+| DAT-06 | The selected move mode (RUN-44) shall be stored in EEPROM and kept across power cycles. |
 
 ---
 
@@ -367,5 +375,5 @@ Questions and design considerations from the source material, still to be resolv
 | OI-02 | **MENU input** | ✅ **RESOLVED (2026-10-11):** Dedicated MENU push button. The encoder stays for navigation, with its click providing haptic feedback. Button placement does not need to be next to the display. |
 | OI-03 | **Emergency STOP input** | ✅ **RESOLVED (2026-10-11):** Dedicated E-STOP push button, placed among the six console buttons. |
 | OI-06 | **Web configuration** | ✅ **RESOLVED (2026-10-11):** Web configuration mirrors the local menu (MNU-20..24). It runs on the access point, started on demand. Secrets are write-only. Calibration moves are allowed; movement control is not. Password protection and home-network access are deferred. |
-| OI-07 | **Additional config values** | Are any other configuration values needed? Candidates: motor speed, acceleration/deceleration, relay crossover angle, display brightness. |
+| OI-07 | **Additional config values** | ✅ **RESOLVED (2026-10-11):** Added CFG-12..17: normal and rapid move speed, move timeout, ramp time, status ring and OLED brightness. Relay crossover angle deferred until a relay build needs it (CFG-05). |
 | OI-10 | **Position persistence** | Position saved in EEPROM when motion completes (DAT-02/04). On startup, EEPROM position used as assumption; first move recalibrates via home sensor. No explicit confirmation needed beyond home sensor pass. |

@@ -2,6 +2,19 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Extra config values and SPEED button (session 3, part 5)
+
+- **Resolved OI-07**: added CFG-12..17. Move speed is split into normal (CFG-12) and
+  rapid (CFG-13) so the SPEED toggle has a value to apply. Also added move timeout
+  (CFG-14, safety limit on dead-reckoning moves), ramp time (CFG-15), status ring
+  brightness (CFG-16) and OLED brightness (CFG-17). Relay crossover angle deferred.
+- **SPEED button** (RUN-44): the fourth shortcut button toggles NORMAL and RAPID.
+  RAPID is a hard lockout until the position is determined, and no setting overrides it.
+  The mode persists (DAT-06).
+- **All six console buttons are now assigned**: MENU, E-STOP, PRESET A, PRESET B,
+  LAST EXIT and SPEED.
+- **SRD v0.17**: sections 3.4, 5.5, 7.3, 9 and 10 updated.
+
 ## 2026-10-11 - Web configuration resolved (session 3, part 4)
 
 - **Resolved OI-06**: web configuration mirrors the local menu (MNU-20, MNU-21).
