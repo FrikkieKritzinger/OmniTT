@@ -4,7 +4,7 @@
 **Purpose**: Standalone local control (OLED + rotary encoder) of a turntable or
 traverser, with optional remote control as a LocoNet accessory decoder
 **Language**: C++ (Arduino framework, PlatformIO)
-**Target**: ESP8266 (Wemos D1 Mini) - see open issue OI-11 on GPIO budget
+**Target**: ESP32 in a Wemos D1 Mini form factor (WROOM-32)
 
 > ℹ️ **How this file is maintained**: `CLAUDE.md` carries only what's pertinent to
 > the current and next session - architecture, conventions, config reference and
@@ -48,14 +48,43 @@ Key behaviours to keep in mind:
 
 ## Development Status
 
-- **Phase 0 (Requirements)**: 🔧 In progress - SRD draft v0.11 (2026-10-07).
-  Open issues OI-01..OI-11 still to resolve, most importantly OI-01 (display
-  size vs I²C), OI-05/08/09 (index and home sensing) and OI-11 (GPIO budget -
-  probably needs an I/O expander or an ESP32).
+- **Phase 0 (Requirements)**: ✅ Complete except OI-12 and OI-13 - SRD v0.19
+  (2026-10-11). All earlier open issues are resolved. OI-12 (solenoid output) and
+  OI-13 (TB6612FNG standby) must be settled before Phase 1.
+- **Platform**: ESP32 (D1 Mini form factor). The current `platformio.ini` still
+  targets ESP8266 and needs migrating in Phase 1.
 - ✅ **Build system set up** (2026-10-07): PlatformIO, skeleton main.cpp, test framework (Unity), config templates.
   Firmware compiles cleanly; native tests pass. RAM 34.4%, Flash 25.4%.
 
-**Next**: resolve the open issues, then implement subsystems (motor control, encoder, OLED, EEPROM config, LocoNet).
+**Implementation plan** (agreed 2026-10-11; detail in docs/CHANGELOG.md):
+1. Core bench build: ESP32 build migration, config and EEPROM, motor and solenoid
+   drivers, home sensor, position tracker, move controller, native tests, minimal OLED.
+2. Local UI: encoder, buttons, RUN and MENU screens, stop screen, calibration, status ring.
+3. Wi-Fi: setup mode, AP on demand, web configuration, firmware update, Info screen.
+4. LocoNet: accessory addressing, STOP handling, local priority (HW-06).
+5. Field hardening: 6152 field test, watchdog, EEPROM verification.
+6. Later: other turntable types, traversers, stepper motors, unindexed and Hall-effect indexing, relay builds.
+
+**Next**: resolve OI-12 and OI-13, then start Phase 1.
+
+## Architecture
+
+Pure logic is kept separate from hardware so it can be tested on the host.
+
+| Module | Responsibility | Host-testable |
+|---|---|---|
+| `position_tracker` | Known/unknown state, first-move homing, dead reckoning, home confirmation, presets, last exit | Yes |
+| `move_controller` | Move state machine: idle, homing, moving, stopped, timeout. Non-blocking `update()` | Yes |
+| `eeprom_config` / `eeprom_store` | Config struct with magic, version and checksum; validation; EEPROM I/O split out | Logic only |
+| `motor_driver` | TB6612FNG direction, PWM, ramp | No |
+| `solenoid_driver` | Lock release during moves (pin pending OI-12) | No |
+| `home_sensor` | Microswitch input, debounce | No |
+| `input` | Encoder decoding, buttons, press and hold detection | Logic only |
+| `display` | SPI OLED: bridge graphic, selection ring, stop screen, red and green states | No |
+| `ui_menu` | RUN and MENU modes, menu tree, SAVE and CANCEL | Logic only |
+| `status_ring` | NeoPixel states (RUN-30..33) | No |
+| `wifi_manager` / `web_server` | AP on demand, setup mode, web configuration, firmware update | No |
+| `loconet_interface` | Accessory addressing, STOP, priority rules | Partly |
 
 ---
 
