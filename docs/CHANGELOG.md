@@ -2,6 +2,39 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Lock solenoid and motor driver resolved (session 3, part 8)
+
+- **Resolved OI-12**: the solenoid runs from TB6612FNG channel B and the motor from
+  channel A. Both are 12 V and draw a few hundred mA, well within the 1.2 A rating.
+  The 6152, Roco and Märklin use the same four-wire arrangement (GND, MOVE, MOTOR A,
+  MOTOR B).
+- **Resolved OI-13**: the DFRobot TB6612FNG board has no standby line, so no GPIO is
+  needed.
+- **Motor and solenoid pins**: DIR1 GPIO13, PWM1 GPIO32 (motor); DIR2 GPIO14, PWM2
+  GPIO4 (solenoid). GPIO4 and GPIO14 are not strapping pins.
+- **Boot safety**: PWM1 and PWM2 need external pull-downs so the outputs stay off
+  during reset.
+- **New OI-14**: pin budget and strapping pins. About 23 pins are needed and about 19
+  clean pins are available. GPIO12 must move. Decision needed before the Phase 1
+  pin map.
+- **Pending correction**: `docs/GPIO_REFERENCE.md` wrongly lists GPIO4 as strapping,
+  and it still shows GPIO12 for motor direction A. To be fixed with the Phase 1 pin map.
+- **SRD v0.20**: HW-26, HW-28, OI-12, OI-13, OI-14 updated.
+
+## 2026-10-11 - Architecture and phase plan (session 3, part 7)
+
+- **Architecture** agreed: pure logic (position tracker, move controller, config,
+  input, menu logic) kept separate from hardware drivers, so the core can be tested
+  on the host.
+- **Phase plan** agreed: 1 core bench build, 2 local UI and status ring, 3 Wi-Fi,
+  4 LocoNet, 5 field hardening, 6 later turntable types.
+- **New open issues before Phase 1**: OI-12 (lock solenoid output; GPIO2 is a
+  strapping pin and is also the relay pin) and OI-13 (TB6612FNG standby pin).
+- **Platform**: ESP32 is the target. The existing `platformio.ini` still builds for
+  ESP8266, and LocoNet moves to the ESP32 library (LocoNet2).
+- **SRD v0.19**: HW-26 and HW-28 updated; OI-12 and OI-13 added.
+- **CLAUDE.md**: target, status, architecture and phase plan updated.
+
 ## 2026-10-11 - Position after power-up resolved (session 3, part 6)
 
 - **Resolved OI-10**: an interrupted move is treated the same as an orderly restart.

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.18 |
+| **Document status** | Draft v0.20 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -108,8 +108,9 @@ The controller has these parts:
 | HW-23 | Bridge power | OUT | Switched and polarity-controlled track power to the bridge. |
 | HW-24 | Motor 1 | OUT | DC motor terminal 1. |
 | HW-25 | Motor 2 | OUT | DC motor terminal 2. |
-| HW-26 | Motor driver | OUT | TB6612FNG Dual H-Bridge: 4 GPIO (2 dir, 2 PWM). Drives DC or stepper motor up to 12V/1.2A. **[RESOLVED – OI-04]** |
+| HW-26 | Motor driver | OUT | TB6612FNG Dual H-Bridge: DFRobot TB6612FNG board: 4 GPIO (2 dir, 2 PWM). Channel A drives the motor, channel B drives the lock solenoid (HW-28). Each channel is rated 1.2 A at 12 V. The board has no standby line. **[RESOLVED – OI-13]** **[RESOLVED – OI-04]** |
 | HW-27 | Home sensor | IN | Microswitch at home position (exit 0). Detects home for position recalibration. **[RESOLVED – OI-08/09]** |
+| HW-28 | Lock solenoid | OUT | Lock solenoid driven from TB6612FNG channel B (HW-26). Typically 12 V at a few hundred mA. Held open while the motor runs and released to lock at an index. Matches the MOVE line of the Fleischmann 6152, and of similar Fleischmann, Roco and Märklin turntables. **[RESOLVED – OI-12]** |
 
 ### 3.4 Physical layout
 
@@ -380,3 +381,6 @@ Questions and design considerations from the source material, still to be resolv
 | OI-06 | **Web configuration** | ✅ **RESOLVED (2026-10-11):** Web configuration mirrors the local menu (MNU-20..24). It runs on the access point, started on demand. Secrets are write-only. Calibration moves are allowed; movement control is not. Password protection and home-network access are deferred. |
 | OI-07 | **Additional config values** | ✅ **RESOLVED (2026-10-11):** Added CFG-12..17: normal and rapid move speed, move timeout, ramp time, status ring and OLED brightness. Relay crossover angle deferred until a relay build needs it (CFG-05). |
 | OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |
+| OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (GPIO4) and DIR2 (GPIO14). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
+| OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
+| OI-14 | **Pin budget and strapping pins** | The firmware needs about 23 pins. The ESP32 has about 19 usable non-strapping pins, counting the four input-only pins. GPIO12 (motor direction A) is a strapping pin and must move. Options: use strapping pins only where boot state is harmless (for example GPIO5 for OLED CS, GPIO2 for the optional relay, or a button on GPIO0 that is not held at boot); drop the optional relay; or move some buttons to one of the spare I²C expanders. Decision needed before the Phase 1 pin map. |
