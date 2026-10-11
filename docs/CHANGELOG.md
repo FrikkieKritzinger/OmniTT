@@ -2,6 +2,21 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Web configuration resolved (session 3, part 4)
+
+- **Resolved OI-06**: web configuration mirrors the local menu (MNU-20, MNU-21).
+- **Secrets write-only** (MNU-22): the Wi-Fi password is never shown on the page
+  once saved, following the no-secrets rule.
+- **On-demand AP and web service** (MNU-23): started from Setup Wi-Fi or Firmware
+  Update, stopped by an idle timeout or on leaving the menu. Blank config enters
+  setup mode automatically.
+- **Calibration from web** (MNU-24): allowed only when idle, not in MENU, and not in
+  E-stop. A STOP action is offered during the move. No other movement control on
+  the web page.
+- **Deferred**: admin PIN for the web configuration, and home-network access
+  (station mode).
+- **SRD v0.16**: section 6.3 and section 10 updated.
+
 ## 2026-10-11 - Shortcut buttons added (session 3, part 3)
 
 - **Shortcut buttons** (section 5.5, RUN-40..43): PRESET A and PRESET B recall stored

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.15 |
+| **Document status** | Draft v0.16 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -223,7 +223,13 @@ The console has four spare buttons (HW-32). Three are assigned to shortcuts; one
 
 | ID | Requirement |
 |---|---|
-| MNU-20 | Configuration through a web page may be provided in addition to the local menu. **[OPEN – OI-06]** |
+| MNU-20 | Configuration through a web page shall be provided in addition to the local menu. **[RESOLVED – OI-06]** |
+| MNU-21 | The web configuration shall offer the same settings, with the same labels, as the local menu. |
+| MNU-22 | Secret values (Wi-Fi password) shall be write-only on the web page: once saved, they shall never be displayed again. |
+| MNU-23 | The access point and web service shall start only when the user selects Setup Wi-Fi or Firmware Update (UPD-01), and shall stop after an idle timeout or on leaving the menu. A blank or incomplete configuration shall enter setup mode automatically. |
+| MNU-24 | Calibration moves started from the web page (to set CFG-08) shall be allowed only when the bridge is idle, not in MENU mode, and not in E-stop. The web page shall offer a STOP action during such a move. |
+
+Deferred to a later stage: password protection (admin PIN) for the web configuration, and access from the home network (station mode).
 
 ---
 
@@ -360,6 +366,6 @@ Questions and design considerations from the source material, still to be resolv
 | OI-09 | **Startup behavior** | ✅ **RESOLVED (2026-10-07):** Display bridge icon flashing RED from startup until first home pass. Once home sensor detects, icon turns GREEN and position is set to HOME. Then continue to target exit. Subsequent moves use dead-reckoning (no red flash). Most bridges remain where left, so this is pragmatic and fast. |
 | OI-02 | **MENU input** | ✅ **RESOLVED (2026-10-11):** Dedicated MENU push button. The encoder stays for navigation, with its click providing haptic feedback. Button placement does not need to be next to the display. |
 | OI-03 | **Emergency STOP input** | ✅ **RESOLVED (2026-10-11):** Dedicated E-STOP push button, placed among the six console buttons. |
-| OI-06 | **Web configuration** | Should configuration also be possible from a web page, in addition to the local menu? |
+| OI-06 | **Web configuration** | ✅ **RESOLVED (2026-10-11):** Web configuration mirrors the local menu (MNU-20..24). It runs on the access point, started on demand. Secrets are write-only. Calibration moves are allowed; movement control is not. Password protection and home-network access are deferred. |
 | OI-07 | **Additional config values** | Are any other configuration values needed? Candidates: motor speed, acceleration/deceleration, relay crossover angle, display brightness. |
 | OI-10 | **Position persistence** | Position saved in EEPROM when motion completes (DAT-02/04). On startup, EEPROM position used as assumption; first move recalibrates via home sensor. No explicit confirmation needed beyond home sensor pass. |
