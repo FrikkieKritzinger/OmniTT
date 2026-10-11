@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.17 |
+| **Document status** | Draft v0.18 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -171,6 +171,9 @@ The controller shall have two top-level modes:
 |---|---|
 | RUN-20 | The controller shall keep the current bridge position in non-volatile memory (EEPROM), so it knows where it is at startup without seeking home every time. |
 | RUN-21 | During normal operation, the controller shall keep track of the home position so it cannot lose its position. For example, it shall re-verify home whenever the bridge passes it. |
+| RUN-22 | After power-up, the bridge position shall be taken as the last saved position (DAT-02) and shown as uncertain (red pulse, RUN-30). An orderly restart and a power interruption, including one during a move, shall be treated the same way. |
+| RUN-23 | On the first move after power-up, the bridge shall keep moving in the operator-selected direction, past the target if necessary, until the home sensor is passed. The position is then set to HOME, and the bridge shall stop at the selected exit (RUN-06). The move timeout (CFG-14) shall allow for a full revolution. |
+| RUN-24 | After the position is determined (RUN-23), the controller shall track position by dead reckoning and re-confirm it at every home pass. |
 
 ---
 
@@ -376,4 +379,4 @@ Questions and design considerations from the source material, still to be resolv
 | OI-03 | **Emergency STOP input** | ✅ **RESOLVED (2026-10-11):** Dedicated E-STOP push button, placed among the six console buttons. |
 | OI-06 | **Web configuration** | ✅ **RESOLVED (2026-10-11):** Web configuration mirrors the local menu (MNU-20..24). It runs on the access point, started on demand. Secrets are write-only. Calibration moves are allowed; movement control is not. Password protection and home-network access are deferred. |
 | OI-07 | **Additional config values** | ✅ **RESOLVED (2026-10-11):** Added CFG-12..17: normal and rapid move speed, move timeout, ramp time, status ring and OLED brightness. Relay crossover angle deferred until a relay build needs it (CFG-05). |
-| OI-10 | **Position persistence** | Position saved in EEPROM when motion completes (DAT-02/04). On startup, EEPROM position used as assumption; first move recalibrates via home sensor. No explicit confirmation needed beyond home sensor pass. |
+| OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |

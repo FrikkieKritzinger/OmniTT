@@ -2,6 +2,17 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-11 - Position after power-up resolved (session 3, part 6)
+
+- **Resolved OI-10**: an interrupted move is treated the same as an orderly restart.
+  The bridge position is uncertain either way, so no move-in-progress flag is stored.
+- **First move after power-up** (RUN-22/23): the bridge keeps moving in the
+  operator-selected direction, past the target if needed, until the home sensor is
+  passed. It then sets position to HOME and stops at the selected exit. The move
+  timeout (CFG-14) must allow for a full revolution.
+- **After that** (RUN-24): dead reckoning, re-confirmed at every home pass.
+- **SRD v0.18**: section 5.3 and section 10 updated.
+
 ## 2026-10-11 - Extra config values and SPEED button (session 3, part 5)
 
 - **Resolved OI-07**: added CFG-12..17. Move speed is split into normal (CFG-12) and
