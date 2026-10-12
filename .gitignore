@@ -8,3 +8,6 @@
 # Third-party protocol specs under redistribution-restricted licenses -
 # reference material only, never commit
 docs/*.pdf
+
+# Vendor datasheet for the TB6612FNG motor driver (Toshiba, redistribution restricted)
+docs/*TB6612*
