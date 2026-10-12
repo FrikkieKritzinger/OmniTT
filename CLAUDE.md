@@ -70,7 +70,12 @@ Key behaviours to keep in mind:
 - OI-16: hardware design review (board silkscreen vs pin map, level shifter for the status ring, pull-up and pull-down resistors, power, enclosure wiring).
 
 **To-do (hardware, before wiring)**:
-- Verify the TB6612FNG input pull-downs with a multimeter, board unpowered: resistance from each input (AIN1, AIN2, BIN1, BIN2, PWMA, PWMB) to GND. About 200 kΩ means a pull-down. Decides whether the TCK, TMS, 32 and 4 pull-down resistors are needed. Needs the TB6612 board to hand.
+- TB6612FNG datasheet (checked 2026-10-12): every control input (AIN1, AIN2, BIN1, BIN2, PWMA, PWMB, STBY) has an internal 200 kΩ pull-down. STBY is active-low. Still to confirm on the DFRobot board with a multimeter (board unpowered, about 200 kΩ to GND per input). If confirmed, the pull-downs on TCK, TMS, 32 and 4 are not needed.
+- Confirm the board holds STBY high, since no STBY pin is exposed. Otherwise the chip sits in standby.
+- VCC (logic) must be 3.3 V: operating range 2.7 to 5.5 V, absolute maximum 6 V. Never connect 5 V or 12 V to VCC. Check the DFRobot board's VCC wiring.
+- Bypass capacitors per the datasheet application circuit: 0.1 µF plus 10 µF on VCC, and 0.1 µF plus 10 µF on VM, placed close to the pins. Check whether the DFRobot board already has them.
+- Flyback diode across the lock solenoid. The datasheet text extracted does not show integrated clamp diodes. Verify against the datasheet figures.
+- Optional: 0.1 µF across the motor terminals to reduce brush noise. Common practice, not from the datasheet.
 - Decide the input reassignment that removes the button and home-sensor pull-up resistors: home sensor on 26 (with OLED RES tied to 3.3 V), PRESET A on TDI (12), PRESET B on 2, LAST EXIT on 0. Trade-offs: labels 0 and 2 are strapping pins, and the relay would lose pin 2.
 - Confirm on the OLED module that RES can be tied high.
 - Level shifter for the status ring data (label 5).
