@@ -74,8 +74,12 @@ Key behaviours to keep in mind:
 - Confirm the board holds STBY high, since no STBY pin is exposed. Otherwise the chip sits in standby.
 - VCC (logic) must be 3.3 V: operating range 2.7 to 5.5 V, absolute maximum 6 V. Never connect 5 V or 12 V to VCC. Check the DFRobot board's VCC wiring.
 - Bypass capacitors per the datasheet application circuit: 0.1 µF plus 10 µF on VCC, and 0.1 µF plus 10 µF on VM, placed close to the pins. Check whether the DFRobot board already has them.
-- Flyback diode across the lock solenoid. The datasheet text extracted does not show integrated clamp diodes. Verify against the datasheet figures.
+- Fit a flyback diode (1N4007 or UF4007) across the lock solenoid, cathode to +12 V, anode to the driver side. One diode is enough because the solenoid is only driven in one direction.
 - Optional: 0.1 µF across the motor terminals to reduce brush noise. Common practice, not from the datasheet.
+- Input filter on the N7812-1PV (Meanwell switching module, 8 to 20 V in, 12 V at 1 A and -12 V at 0.3 A out): 100 µF electrolytic (35 V or 50 V) plus 0.1 µF ceramic, close to the input pins. Check whether the module needs its own output capacitors.
+- Input filter on the Wemos D1 power shield (5 V and 3.3 V rails): confirm whether it is switching or linear, then fit 100 µF plus 0.1 µF at its input.
+- Decide whether the -12 V 0.3 A output is needed. Nothing in the current design uses it.
+- Check the 1 A output headroom: motor and solenoid together should stay well under 1 A, including at stall.
 - Decide the input reassignment that removes the button and home-sensor pull-up resistors: home sensor on 26 (with OLED RES tied to 3.3 V), PRESET A on TDI (12), PRESET B on 2, LAST EXIT on 0. Trade-offs: labels 0 and 2 are strapping pins, and the relay would lose pin 2.
 - Confirm on the OLED module that RES can be tied high.
 - Level shifter for the status ring data (label 5).
