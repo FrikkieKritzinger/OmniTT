@@ -69,6 +69,12 @@ Key behaviours to keep in mind:
 - OI-15: index hold time and index spacing (CFG-08 wording to follow).
 - OI-16: hardware design review (board silkscreen vs pin map, level shifter for the status ring, pull-up and pull-down resistors, power, enclosure wiring).
 
+**To-do (hardware, before wiring)**:
+- Verify the TB6612FNG input pull-downs with a multimeter, board unpowered: resistance from each input (AIN1, AIN2, BIN1, BIN2, PWMA, PWMB) to GND. About 200 kΩ means a pull-down. Decides whether the TCK, TMS, 32 and 4 pull-down resistors are needed. Needs the TB6612 board to hand.
+- Decide the input reassignment that removes the button and home-sensor pull-up resistors: home sensor on 26 (with OLED RES tied to 3.3 V), PRESET A on TDI (12), PRESET B on 2, LAST EXIT on 0. Trade-offs: labels 0 and 2 are strapping pins, and the relay would lose pin 2.
+- Confirm on the OLED module that RES can be tied high.
+- Level shifter for the status ring data (label 5).
+
 **Next**: resolve OI-15 and OI-16 for hardware, then start Phase 1 (core bench build).
 
 ## Architecture
