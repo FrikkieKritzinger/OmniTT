@@ -66,7 +66,6 @@ Key behaviours to keep in mind:
 6. Later: other turntable types, traversers, stepper motors, unindexed and Hall-effect indexing, relay builds.
 
 **Open items** (SRD section 10):
-- OI-15: index hold time and index spacing (CFG-08 wording to follow).
 - OI-16: hardware design review (board silkscreen vs pin map, level shifter for the status ring, pull-up and pull-down resistors, power, enclosure wiring).
 
 **To-do (hardware, before wiring)**:
@@ -83,7 +82,7 @@ Key behaviours to keep in mind:
 - Confirm on the OLED module that RES can be tied high.
 - Level shifter for the status ring data (label 5).
 
-**Next**: resolve OI-15 and OI-16 for hardware, then start Phase 1 (core bench build).
+**Next**: resolve OI-16 (hardware review), then start Phase 1 (core bench build).
 
 ## Architecture
 

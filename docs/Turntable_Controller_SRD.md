@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.23 |
+| **Document status** | Draft v0.25 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -173,8 +173,12 @@ The controller shall have two top-level modes:
 | RUN-20 | The controller shall keep the current bridge position in non-volatile memory (EEPROM), so it knows where it is at startup without seeking home every time. |
 | RUN-21 | During normal operation, the controller shall keep track of the home position so it cannot lose its position. For example, it shall re-verify home whenever the bridge passes it. |
 | RUN-22 | After power-up, the bridge position shall be taken as the last saved position (DAT-02) and shown as uncertain (red pulse, RUN-30). An orderly restart and a power interruption, including one during a move, shall be treated the same way. |
-| RUN-23 | On the first move after power-up, the bridge shall keep moving in the operator-selected direction, past the target if necessary, until the home sensor is passed. The position is then set to HOME, and the bridge shall stop at the selected exit (RUN-06). The move timeout (CFG-14) shall allow for a full revolution. |
+| RUN-23 | On the first move after power-up, the assumed position (RUN-22) is treated as the start of the move. The bridge shall move by the fastest path from that assumed position, as for any move. Step counting and solenoid release timing shall not start until the home sensor is passed, which sets the position to HOME. If the target is reached before home is passed, the bridge shall keep moving in the same direction, without releasing the solenoid, until home is passed. It shall then continue to the selected exit (RUN-06). The move timeout (CFG-14) shall cover a full revolution plus the home-to-target distance. |
 | RUN-24 | After the position is determined (RUN-23), the controller shall track position by dead reckoning and re-confirm it at every home pass. |
+| RUN-25 | A move shall release the lock solenoid after the bridge passes the previous fitted index in the direction of travel, and before the target index. The release shall be timed mid-gap using CFG-08, so that the timing tolerance is half the gap. Releasing earlier would let the pin drop into the earlier index. |
+| RUN-26 | After the solenoid is released, the motor shall keep running until the lock pin drops into the target index, which cuts motor power. The controller shall stop the motor PWM after the expected arrival time plus a margin. The move timeout (CFG-14) shall apply as the backstop. |
+| RUN-27 | Calibration of CFG-08 shall be a one-time setup procedure, run from the menu or the web page (MNU-24 rules), that drives one full revolution from home. It shall not run at power-up. |
+| RUN-28 | Every move shall use the fastest path from the current position to the target, except the first move after power-up (RUN-23). A configurable direction preference is deferred to a later phase. |
 
 ---
 
@@ -286,7 +290,7 @@ Opens the turntable setup values.
 | CFG-05 | **Enable Internal Relay?** | Yes / No | **Yes:** the controller inverts bridge power at the crossover point using its internal relay. **No:** an external reverse-loop module handles track power changeover. **[DEFERRED – relay build, later phase]** |
 | CFG-06 | **Motor Type** | Stepper / Standard | **Stepper:** a standard stepper motor drives the bridge. **Standard:** a standard DC motor drives the bridge. |
 | CFG-07 | **Configure Steps** | Integer | The number of steps per 360° rotation. Applies to stepper motors only. |
-| CFG-08 | **Index Hold Time** | Time | Applies to DC motors only. The time used to pass over intermediate index points so the bridge stops only at the selected one. Only used when the target is not the next index, for example moving from exit 2 to exit 4. |
+| CFG-08 | **Index Hold Time** | Time per step, NORMAL and RAPID | Calibrated time for the bridge to travel one 7.5° step, measured separately for each speed mode. Learned in the one-time setup calibration (RUN-27). Used to predict the release point and arrival time (RUN-25, RUN-26). |
 | CFG-09 | **Home** | Procedure | Sets the home position, which is the reference for all other positions. |
 | CFG-10 | *Other* | — | Reserved for future configuration values. |
 | CFG-11 | **Preset Hold Time** | Time | How long a PRESET button must be held to store the current exit as that preset (RUN-41). |
@@ -302,7 +306,7 @@ Sets the position, number and name of each exit.
 
 | ID | Option | Description |
 |---|---|---|
-| EXT-01 | **Add** | Saves a new exit position. |
+| EXT-01 | **Add** | Saves a new exit at a position step number 0 to 47, where each step is 7.5°. Only steps with a fitted index piece are stops. |
 | EXT-02 | **Remove** | Removes an existing exit position. |
 | EXT-03 | **Clear** | Removes **all** exit positions. ⚠️ This cannot be undone and shall require confirmation (MNU-07). |
 
@@ -384,5 +388,5 @@ Questions and design considerations from the source material, still to be resolv
 | OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (board label 4) and DIR2 (board label TMS). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
 | OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
 | OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 21 pins. OLED CS is hard-wired low, freeing GPIO5. Strapping pins are used only where their boot state is harmless: board label 5 (status ring data) and TDO (SPEED button, pulled up at boot). TDI (GPIO12) is no longer used, and labels 0 and 2 are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
-| OI-15 | **Index hold and index spacing** | Open for discussion. CFG-08 is the solenoid hold time: the solenoid stays open past one index and locks close to the target. The gap between indexes is likely to vary, so a single fixed hold time may not work. Options to unpack: a per-gap timing table, a fixed hold time per gap learned by calibration, or a learned time per position. |
+| OI-15 | **Index hold and index spacing** | ✅ **RESOLVED (2026-10-12):** Only fitted index pieces are stops; the 48 positions are 7.5° apart. The lock is passive: once released, the pin rubs until it drops into the next index, which cuts motor power. The solenoid is released mid-gap after the previous index (RUN-25). CFG-08 is the calibrated time per step at each speed, learned once by a full-revolution calibration (RUN-27). No per-gap table is needed. |
 | OI-16 | **Hardware design review** | Open for discussion. Covers the exposed pins and silkscreen of the chosen D1 Mini ESP32 board compared with the pin map, the level shifter for the status ring (WS2812 data at 5 V), the external pull-up and pull-down resistors, power supply and wiring, and the enclosure layout. |

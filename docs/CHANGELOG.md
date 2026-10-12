@@ -2,6 +2,31 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-12 - First-move rule and move direction (session 4, part 4)
+
+- **Direction**: every move, including the first after power-up, uses the fastest path
+  from the assumed position. A configurable direction preference is deferred to a later
+  phase.
+- **First move** (RUN-23): step counting and release timing start at the home pass. If
+  the target is passed before home, the bridge keeps moving without releasing the
+  solenoid until home is passed.
+- **Move timeout** (CFG-14): must cover a full revolution plus the home-to-target distance.
+- **SRD v0.25**: RUN-23 updated.
+
+## 2026-10-12 - Index hold and release rule resolved (session 4, part 3)
+
+- **Only fitted index pieces are stops.** The 48 positions are 7.5° apart, and exits are
+  stored as step numbers 0 to 47 (EXT-01).
+- **Lock is passive.** Releasing the solenoid lets the pin rub until it drops into the
+  next index, which cuts motor power.
+- **Release rule** (RUN-25): release mid-gap, after the previous fitted index and before
+  the target. Timing tolerance is half the gap.
+- **Motor stop** (RUN-26): keep running after release, then stop PWM at the expected
+  arrival time plus a margin, with CFG-14 as the backstop.
+- **CFG-08 redefined**: calibrated time per 7.5° step, separately for NORMAL and RAPID.
+  Learned once by a full-revolution calibration (RUN-27), not at power-up.
+- **SRD v0.24**: EXT-01, CFG-08, RUN-25 to RUN-27 and OI-15 updated.
+
 ## 2026-10-12 - Board pins verified and referenced by silkscreen label (session 4, part 2)
 
 - **Board verified on the physical D1 ESP32**: every planned output and input was
