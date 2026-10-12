@@ -48,9 +48,9 @@ Key behaviours to keep in mind:
 
 ## Development Status
 
-- **Phase 0 (Requirements)**: ✅ Complete except OI-12 and OI-13 - SRD v0.19
-  (2026-10-11). All earlier open issues are resolved. OI-12 (solenoid output) and
-  OI-13 (TB6612FNG standby) must be settled before Phase 1.
+- **Phase 0 (Requirements)**: ✅ Complete - SRD v0.21 (2026-10-11). All open issues
+  OI-01..OI-14 are resolved. The relay is deferred to a later phase (HW-05, CFG-05).
+- **Pin map**: finalised, 21 pins. See docs/GPIO_REFERENCE.md and src/config.h.
 - **Platform**: ESP32 (D1 Mini form factor). The current `platformio.ini` still
   targets ESP8266 and needs migrating in Phase 1.
 - ✅ **Build system set up** (2026-10-07): PlatformIO, skeleton main.cpp, test framework (Unity), config templates.
@@ -65,7 +65,7 @@ Key behaviours to keep in mind:
 5. Field hardening: 6152 field test, watchdog, EEPROM verification.
 6. Later: other turntable types, traversers, stepper motors, unindexed and Hall-effect indexing, relay builds.
 
-**Next**: resolve OI-12 and OI-13, then start Phase 1.
+**Next**: start Phase 1 (core bench build).
 
 ## Architecture
 
@@ -198,7 +198,8 @@ OmniTT/
 │   └── (external packages, managed by PlatformIO)
 └── docs/
     ├── BUILD.md                       Build commands & development guide
-    ├── Turntable_Controller_SRD.md    System Requirements Specification (v0.11)
+    ├── Turntable_Controller_SRD.md    System Requirements Specification (v0.21)
+    ├── GPIO_REFERENCE.md              Pin map and strapping-pin rules
     └── CHANGELOG.md                   Dated session history
 ```
 
