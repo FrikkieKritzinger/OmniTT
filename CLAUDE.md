@@ -65,7 +65,11 @@ Key behaviours to keep in mind:
 5. Field hardening: 6152 field test, watchdog, EEPROM verification.
 6. Later: other turntable types, traversers, stepper motors, unindexed and Hall-effect indexing, relay builds.
 
-**Next**: start Phase 1 (core bench build).
+**Open items** (SRD section 10):
+- OI-15: index hold time and index spacing (CFG-08 wording to follow).
+- OI-16: hardware design review (board silkscreen vs pin map, level shifter for the status ring, pull-up and pull-down resistors, power, enclosure wiring).
+
+**Next**: resolve OI-15 and OI-16 for hardware, then start Phase 1 (core bench build).
 
 ## Architecture
 
