@@ -2,6 +2,37 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-12 - Board pins verified and referenced by silkscreen label (session 4, part 2)
+
+- **Board verified on the physical D1 ESP32**: every planned output and input was
+  tested with the interactive probe (touch test with GND and 3.3 V on the inputs).
+  Some pins appear under JTAG and sensor names: TCK (GPIO13), TMS (GPIO14), TDO
+  (GPIO15), SVP (GPIO36) and SVN (GPIO39).
+- **Documentation now uses the silkscreen label first**, with the GPIO number in
+  brackets where useful: `docs/GPIO_REFERENCE.md`, `src/config.h` comments, SRD
+  OI-08, OI-12 and OI-14, and `docs/BUILD.md`. The BUILD.md pin list was from the
+  old ESP8266 plan and has been replaced.
+- **Pull-up and pull-down guidance** is in GPIO_REFERENCE.md: internal pull-ups for
+  switches on 19, 21, 22, 25, 33 and TDO; external 10 kΩ pull-ups for labels 34, 35,
+  SVP and SVN; external 10 kΩ pull-downs on TCK, TMS, 32 and 4.
+- **SRD v0.23**.
+
+## 2026-10-12 - Consistency fixes and open items (session 4)
+
+- **SRD section 2** updated to ESP32, SPI OLED and home microswitch; the diagram now
+  shows the TB6612FNG and track pass-through.
+- **CFG-05** marked deferred (relay build).
+- **HW-24/25** now cover the motor and the lock solenoid; the duplicate Motor 1 and
+  Motor 2 entries are removed. **HW-26** tidied.
+- **RUN-14**: local E-stop sends STOP to LocoNet only when LocoNet is enabled.
+- **config.h**: `DEFAULT_NUM_EXITS` is 0 (set per turntable), and the EEPROM storage
+  backend is marked for decision in Phase 1.
+- **New open items**: OI-15 (index hold and index spacing, which needs discussion) and
+  OI-16 (hardware design review: silkscreen and exposed pins, level shifter for the
+  status ring, resistors, power, enclosure wiring).
+- **CFG-08 wording** is left for the OI-15 discussion.
+- **SRD v0.22**.
+
 ## 2026-10-11 - Pin map finalised, relay deferred (session 3, part 9)
 
 - **Relay deferred** to a later phase (HW-05, CFG-05). It is needed for relay builds,

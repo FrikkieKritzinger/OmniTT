@@ -63,14 +63,16 @@ platformio.ini          Build configuration
 3. **Never commit** `wifi_credentials.local.h` (gitignored automatically)
 
 ### Hardware Pins
-Edit `src/config.h` to match your wiring. Current assignments for Wemos D1 Mini:
-- Motor: D6 (A), D5 (B), D8 (PWM)
-- Encoder: D1, D2, D3
-- E-stop: D7
-- I2C (OLED): D4 (SDA), D0 (SCL)
-- LocoNet: D0 (RX), D8 (TX) — **pending OI-11 resolution**
+Edit `src/config.h` to match your wiring. The full map, by board silkscreen label, is in [GPIO_REFERENCE.md](GPIO_REFERENCE.md). Summary for the ESP32 D1 Mini:
+- Motor: TCK (DIR1), 32 (PWM1)
+- Lock solenoid: TMS (DIR2), 4 (PWM2)
+- OLED (SPI): 18 (CLK), 23 (MOSI), 27 (DC), 26 (RES)
+- Encoder: 19, 21, 22 (button)
+- MENU: 25. E-STOP: 33. PRESET A: 34. PRESET B: SVP. LAST EXIT: SVN. SPEED: TDO
+- LocoNet: 16 (RX), 17 (TX)
+- Home sensor: 35. Status ring: 5
 
-⚠️ **GPIO0, GPIO2, GPIO15** are boot-strapping pins — current layout may need revision.
+Strapping pins are used only where their boot state is harmless (labels 5 and TDO). See GPIO_REFERENCE.md for the rules.
 
 ### EEPROM Layout
 - **0–255**: Runtime configuration (checksum validated)

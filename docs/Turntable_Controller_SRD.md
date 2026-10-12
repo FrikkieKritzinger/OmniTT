@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.21 |
+| **Document status** | Draft v0.23 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -50,23 +50,23 @@ Out of scope: accessory and layout control (for example roundhouse doors or shed
 ## 2. System Overview
 
 The controller has these parts:
-- An ESP8266 microcontroller.
-- A graphical OLED display.
+- An ESP32 microcontroller in a D1 Mini form factor.
+- A graphical SPI OLED display.
 - An EC11 rotary encoder with a push button.
 - A MENU button.
 - An emergency STOP input.
-- Motor drive outputs for a stepper or DC motor.
-- An index sensor input.
+- A home microswitch input.
+- A TB6612FNG dual H-bridge driving the motor and the lock solenoid.
 - Track and bridge power switching.
 - A LocoNet interface.
 
 ```
            ┌──────────────┐
- LocoNet ──┤              ├── OLED display (I²C)
+ LocoNet ──┤              ├── OLED display (SPI)
  Main PWR ─┤              ├── Rotary encoder + button
- Track PWR ┤   ESP8266    ├── MENU button / E-STOP
- Index ────┤ (D1 Mini)    ├── Motor driver (stepper or DC)
-           │              ├── Bridge power OUT (via relay)
+ Track PWR ┤   ESP32      ├── MENU button / E-STOP
+ Home ─────┤ (D1 Mini)    ├── Motor + lock solenoid (TB6612FNG)
+           │              ├── Bridge power OUT (track pass-through)
            └──────┬───────┘
                   └── Wi-Fi (config / firmware update)
 ```
@@ -106,9 +106,9 @@ The controller has these parts:
 | HW-21 | Main power | IN | Supply for the controller and motor. |
 | HW-22 | Track power | IN | DC or DCC track power feed. |
 | HW-23 | Bridge power | OUT | Switched and polarity-controlled track power to the bridge. |
-| HW-24 | Motor 1 | OUT | DC motor terminal 1. |
-| HW-25 | Motor 2 | OUT | DC motor terminal 2. |
-| HW-26 | Motor driver | OUT | TB6612FNG Dual H-Bridge: DFRobot TB6612FNG board: 4 GPIO (2 dir, 2 PWM). Channel A drives the motor, channel B drives the lock solenoid (HW-28). Each channel is rated 1.2 A at 12 V. The board has no standby line. **[RESOLVED – OI-13]** **[RESOLVED – OI-04]** |
+| HW-24 | Motor | OUT | DC motor terminals, driven from TB6612FNG channel A (HW-26). |
+| HW-25 | Lock solenoid terminals | OUT | Driven from TB6612FNG channel B (HW-28). |
+| HW-26 | Motor driver | OUT | DFRobot TB6612FNG dual H-bridge board: 4 GPIO (2 dir, 2 PWM). Channel A drives the motor, channel B drives the lock solenoid (HW-28). Each channel is rated 1.2 A at 12 V. The board has no standby line. **[RESOLVED – OI-04, OI-13]** |
 | HW-27 | Home sensor | IN | Microswitch at home position (exit 0). Detects home for position recalibration. **[RESOLVED – OI-08/09]** |
 | HW-28 | Lock solenoid | OUT | Lock solenoid driven from TB6612FNG channel B (HW-26). Typically 12 V at a few hundred mA. Held open while the motor runs and released to lock at an index. Matches the MOVE line of the Fleischmann 6152, and of similar Fleischmann, Roco and Märklin turntables. **[RESOLVED – OI-12]** |
 
@@ -164,7 +164,7 @@ The controller shall have two top-level modes:
 | RUN-11 | An emergency STOP shall be triggered by the local STOP input or by a DCC/LocoNet STOP command. |
 | RUN-12 | While a STOP is active, the OLED shall change to a distinct stop screen. |
 | RUN-13 | The stop screen shall show whether the stop came from DCC or from the local input. |
-| RUN-14 | Local eStop shall push a STOP command to LocoNet. |
+| RUN-14 | When LocoNet is enabled (DCC-01), a local eStop shall push a STOP command to LocoNet. |
 
 ### 5.3 Position tracking
 
@@ -283,7 +283,7 @@ Opens the turntable setup values.
 | CFG-02 | **TT Type** | Turntable / Traverser | Sets the on-screen graphics and the related behaviour. |
 | CFG-03 | **No. of Exits** | 0 – n | The total number of exits. For fixed-position (indexed) turntables such as Roco, Fleischmann or Märklin, enter the number of exits. Enter **0** for unindexed or infinite-position turntables such as PECO, Walthers or DIY builds. |
 | CFG-04 | **Stall End** | A end reference | Sets the A end of the bridge (the control-cabin end). Applies to turntables only; a traverser has no polarity inversion. |
-| CFG-05 | **Enable Internal Relay?** | Yes / No | **Yes:** the controller inverts bridge power at the crossover point using its internal relay. **No:** an external reverse-loop module handles track power changeover. |
+| CFG-05 | **Enable Internal Relay?** | Yes / No | **Yes:** the controller inverts bridge power at the crossover point using its internal relay. **No:** an external reverse-loop module handles track power changeover. **[DEFERRED – relay build, later phase]** |
 | CFG-06 | **Motor Type** | Stepper / Standard | **Stepper:** a standard stepper motor drives the bridge. **Standard:** a standard DC motor drives the bridge. |
 | CFG-07 | **Configure Steps** | Integer | The number of steps per 360° rotation. Applies to stepper motors only. |
 | CFG-08 | **Index Hold Time** | Time | Applies to DC motors only. The time used to pass over intermediate index points so the bridge stops only at the selected one. Only used when the target is not the next index, for example moving from exit 2 to exit 4. |
@@ -374,13 +374,15 @@ Questions and design considerations from the source material, still to be resolv
 | OI-11 | **GPIO availability** | ✅ **RESOLVED (2026-10-07):** Upgrade from ESP8266 D1 Mini to ESP32 D1 Mini. Provides 30+ usable GPIO with no expander needed. Eliminates pin constraints, simplifies hardware, enables future expansion. |
 | OI-04 | **Motor driver** | ✅ **RESOLVED (2026-10-07):** Use TB6612FNG Dual Channel H-Bridge modules. 4 GPIO pins per module (2 direction, 2 PWM). Can drive stepper or DC motor up to 12V/1.2A. Scope Phase 1: Fleischmann 6152 (48 positions, solenoid-locked, bidirectional DC motor). |
 | OI-05 | **Position tracking** | ✅ **RESOLVED (2026-10-07):** Time-based tracking via calibrated motor timing. Learn milliseconds-per-position via menu option "Index Hold Time". Dead-reckoning between home passes. Solenoid auto-locks at each index. First move after power-up recalibrates position via home sensor. |
-| OI-08 | **Home detection** | ✅ **RESOLVED (2026-10-07):** Microswitch at home position (exit 0). Detects when bridge passes home. Used to recalibrate position on first move after power-up. GPIO35 assigned for home sensor input. |
+| OI-08 | **Home detection** | ✅ **RESOLVED (2026-10-07):** Microswitch at home position (exit 0). Detects when bridge passes home. Used to recalibrate position on first move after power-up. Board label 35 is the home sensor input. |
 | OI-09 | **Startup behavior** | ✅ **RESOLVED (2026-10-07):** Display bridge icon flashing RED from startup until first home pass. Once home sensor detects, icon turns GREEN and position is set to HOME. Then continue to target exit. Subsequent moves use dead-reckoning (no red flash). Most bridges remain where left, so this is pragmatic and fast. |
 | OI-02 | **MENU input** | ✅ **RESOLVED (2026-10-11):** Dedicated MENU push button. The encoder stays for navigation, with its click providing haptic feedback. Button placement does not need to be next to the display. |
 | OI-03 | **Emergency STOP input** | ✅ **RESOLVED (2026-10-11):** Dedicated E-STOP push button, placed among the six console buttons. |
 | OI-06 | **Web configuration** | ✅ **RESOLVED (2026-10-11):** Web configuration mirrors the local menu (MNU-20..24). It runs on the access point, started on demand. Secrets are write-only. Calibration moves are allowed; movement control is not. Password protection and home-network access are deferred. |
 | OI-07 | **Additional config values** | ✅ **RESOLVED (2026-10-11):** Added CFG-12..17: normal and rapid move speed, move timeout, ramp time, status ring and OLED brightness. Relay crossover angle deferred until a relay build needs it (CFG-05). |
 | OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |
-| OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (GPIO4) and DIR2 (GPIO14). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
+| OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (board label 4) and DIR2 (board label TMS). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
 | OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
-| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 21 pins. OLED CS is hard-wired low, freeing GPIO5. Strapping pins are used only where their boot state is harmless: GPIO5 (status ring data), GPIO15 (SPEED button, pulled up at boot). GPIO12 is no longer used, and GPIO0 and GPIO2 are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
+| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 21 pins. OLED CS is hard-wired low, freeing GPIO5. Strapping pins are used only where their boot state is harmless: board label 5 (status ring data) and TDO (SPEED button, pulled up at boot). TDI (GPIO12) is no longer used, and labels 0 and 2 are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
+| OI-15 | **Index hold and index spacing** | Open for discussion. CFG-08 is the solenoid hold time: the solenoid stays open past one index and locks close to the target. The gap between indexes is likely to vary, so a single fixed hold time may not work. Options to unpack: a per-gap timing table, a fixed hold time per gap learned by calibration, or a learned time per position. |
+| OI-16 | **Hardware design review** | Open for discussion. Covers the exposed pins and silkscreen of the chosen D1 Mini ESP32 board compared with the pin map, the level shifter for the status ring (WS2812 data at 5 V), the external pull-up and pull-down resistors, power supply and wiring, and the enclosure layout. |
