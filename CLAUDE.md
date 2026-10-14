@@ -78,8 +78,8 @@ Key behaviours to keep in mind:
 - Input filter on the N7812-1PV (Meanwell switching module, 8 to 20 V in, 12 V at 1 A out): 100 µF electrolytic (35 V or 50 V) plus 0.1 µF ceramic, close to the input pins. Check whether the module needs its own output capacitors.
 - Input filter on the Wemos D1 power shield (5 V and 3.3 V rails): confirm whether it is switching or linear, then fit 100 µF plus 0.1 µF at its input.
 - Check the 1 A output headroom: motor and solenoid together should stay well under 1 A, including at stall.
-- Decide the input reassignment that removes the button and home-sensor pull-up resistors: home sensor on 26 (with OLED RES tied to 3.3 V), PRESET A on TDI (12), PRESET B on 2, LAST EXIT on 0. Trade-offs: labels 0 and 2 are strapping pins, and the relay would lose pin 2.
-- Confirm on the OLED module that RES can be tied high.
+- Pin map kept as verified. Add external 10 kΩ pull-ups to 3.3 V for the input-only pins: PRESET A (34), home sensor (35), PRESET B (SVP), LAST EXIT (SVN).
+- Solenoid direction: a 3-way jumper on DIR2 (pull-up, pull-down, or GPIO14) selects the energising direction and keeps GPIO14 for a future stepper. Check whether the 6152 solenoid is polarised first.
 - Level shifter for the status ring data (label 5).
 
 **Next**: resolve OI-16 (hardware review), then start Phase 1 (core bench build).
