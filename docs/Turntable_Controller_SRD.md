@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.25 |
+| **Document status** | Draft v0.26 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -94,9 +94,10 @@ The controller has these parts:
 | HW-11 | The display shall be at least 2.4" diagonal; 2.44" SPI OLED (128×64) is the standard. **[RESOLVED]** |
 | HW-12 | The controller shall have one EC11-type rotary encoder module with an integrated push button. |
 | HW-13 | The controller shall have a dedicated MENU push button to switch between RUN mode and MENU mode. **[RESOLVED – OI-02]** |
-| HW-14 | The controller shall have a dedicated emergency STOP push button. **[RESOLVED – OI-03]** |
+| HW-14 | The controller shall have a dedicated emergency STOP push button, wired normally closed so that a broken wire stops the bridge. **[RESOLVED – OI-03]** |
 | HW-15 | The eStop button shall stop bridge movement immediately |
 | HW-16 | The controller shall have a 12-pixel addressable RGB (NeoPixel) status ring mounted under the rotary encoder knob. The ring's 35 mm inside diameter fits the 35 mm aluminium knob, leaving the pixels visible around the knob edge. Implementation deferred to a later phase. |
+| HW-17 | The four shortcut buttons (PRESET A, PRESET B, LAST EXIT, SPEED) shall share one ADC input through a resistor ladder with a 10 kΩ pull-up to 3.3 V. Each button has its own resistor, and the four levels are 1410, 1980, 2480 and 2880 mV, with 3300 mV for no button. A reading shall be accepted only within 150 mV of a level. A reading below 1000 mV is a fault and shall never be treated as a button press. |
 
 ### 3.3 Electrical interfaces
 
@@ -378,15 +379,15 @@ Questions and design considerations from the source material, still to be resolv
 | OI-11 | **GPIO availability** | ✅ **RESOLVED (2026-10-07):** Upgrade from ESP8266 D1 Mini to ESP32 D1 Mini. Provides 30+ usable GPIO with no expander needed. Eliminates pin constraints, simplifies hardware, enables future expansion. |
 | OI-04 | **Motor driver** | ✅ **RESOLVED (2026-10-07):** Use TB6612FNG Dual Channel H-Bridge modules. 4 GPIO pins per module (2 direction, 2 PWM). Can drive stepper or DC motor up to 12V/1.2A. Scope Phase 1: Fleischmann 6152 (48 positions, solenoid-locked, bidirectional DC motor). |
 | OI-05 | **Position tracking** | ✅ **RESOLVED (2026-10-07):** Time-based tracking via calibrated motor timing. Learn milliseconds-per-position via menu option "Index Hold Time". Dead-reckoning between home passes. Solenoid auto-locks at each index. First move after power-up recalibrates position via home sensor. |
-| OI-08 | **Home detection** | ✅ **RESOLVED (2026-10-07):** Microswitch at home position (exit 0). Detects when bridge passes home. Used to recalibrate position on first move after power-up. Board label 35 is the home sensor input. |
+| OI-08 | **Home detection** | ✅ **RESOLVED (2026-10-07):** Microswitch at home position (exit 0). Detects when bridge passes home. Used to recalibrate position on first move after power-up. The home sensor is on board label TDO (GPIO15). |
 | OI-09 | **Startup behavior** | ✅ **RESOLVED (2026-10-07):** Display bridge icon flashing RED from startup until first home pass. Once home sensor detects, icon turns GREEN and position is set to HOME. Then continue to target exit. Subsequent moves use dead-reckoning (no red flash). Most bridges remain where left, so this is pragmatic and fast. |
 | OI-02 | **MENU input** | ✅ **RESOLVED (2026-10-11):** Dedicated MENU push button. The encoder stays for navigation, with its click providing haptic feedback. Button placement does not need to be next to the display. |
 | OI-03 | **Emergency STOP input** | ✅ **RESOLVED (2026-10-11):** Dedicated E-STOP push button, placed among the six console buttons. |
 | OI-06 | **Web configuration** | ✅ **RESOLVED (2026-10-11):** Web configuration mirrors the local menu (MNU-20..24). It runs on the access point, started on demand. Secrets are write-only. Calibration moves are allowed; movement control is not. Password protection and home-network access are deferred. |
 | OI-07 | **Additional config values** | ✅ **RESOLVED (2026-10-11):** Added CFG-12..17: normal and rapid move speed, move timeout, ramp time, status ring and OLED brightness. Relay crossover angle deferred until a relay build needs it (CFG-05). |
 | OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |
-| OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (board label 4) and DIR2 (board label TMS). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
+| OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (board label 4) and DIR2 (board label 33, set by a jumper). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
 | OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
-| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 21 pins. OLED CS is hard-wired low, freeing GPIO5. Strapping pins are used only where their boot state is harmless: board label 5 (status ring data) and TDO (SPEED button, pulled up at boot). TDI (GPIO12) is no longer used, and labels 0 and 2 are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
+| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 18 pins. Strapping pins in use: TDO only (home sensor, pulled up at boot). Four shortcut buttons share one ADC input (HW-17). MENU and E-STOP have their own pins on the button board. Labels 0, 2, 5 and TDI are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
 | OI-15 | **Index hold and index spacing** | ✅ **RESOLVED (2026-10-12):** Only fitted index pieces are stops; the 48 positions are 7.5° apart. The lock is passive: once released, the pin rubs until it drops into the next index, which cuts motor power. The solenoid is released mid-gap after the previous index (RUN-25). CFG-08 is the calibrated time per step at each speed, learned once by a full-revolution calibration (RUN-27). No per-gap table is needed. |
 | OI-16 | **Hardware design review** | Open for discussion. Covers the exposed pins and silkscreen of the chosen D1 Mini ESP32 board compared with the pin map, the level shifter for the status ring (WS2812 data at 5 V), the external pull-up and pull-down resistors, power supply and wiring, and the enclosure layout. |

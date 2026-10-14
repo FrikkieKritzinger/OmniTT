@@ -2,6 +2,23 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-14 - Pin map finalised with resistor ladder (session 5)
+
+- **Button board**: MENU on TCK (13) and E-STOP on 35, both direct. E-STOP is wired
+  normally closed. Four shortcut buttons (PRESET A, PRESET B, LAST EXIT, SPEED) share the
+  ladder on 34, with levels 1410, 1980, 2480 and 2880 mV (7.5, 15, 30 and 68 kΩ, 10 kΩ
+  pull-up). Readings within 150 mV of a level are accepted. Below 1000 mV is a fault.
+- **Motor and solenoid**: DIR1 moves to 25, DIR2 to 33 (set by a 3-way jumper). PWM1 (32)
+  and PWM2 (4) are unchanged.
+- **Home sensor** moves to TDO (15) with the internal pull-up. It's the only strapping pin
+  in use.
+- **Status ring** moves to TMS (14), which isn't a strapping pin. That frees 5.
+- **Pins now used**: 18. Free: 0, 2, 5, 12 (all strapping), and 36, 39 (input-only).
+- **SRD v0.26**: HW-14 (normally closed E-STOP), new HW-17 (ladder), OI-08, OI-12 and OI-14
+  updated.
+- **Files**: `src/config.h` (pin map and ladder levels), `docs/GPIO_REFERENCE.md`,
+  `docs/BUILD.md`, and `CLAUDE.md` to-do list.
+
 ## 2026-10-12 - First-move rule and move direction (session 4, part 4)
 
 - **Direction**: every move, including the first after power-up, uses the fastest path

@@ -50,7 +50,7 @@ Key behaviours to keep in mind:
 
 - **Phase 0 (Requirements)**: ✅ Complete - SRD v0.21 (2026-10-11). All open issues
   OI-01..OI-14 are resolved. The relay is deferred to a later phase (HW-05, CFG-05).
-- **Pin map**: finalised, 21 pins. See docs/GPIO_REFERENCE.md and src/config.h.
+- **Pin map**: finalised 2026-10-14, 18 pins, with a resistor ladder for four shortcut buttons. See docs/GPIO_REFERENCE.md and src/config.h.
 - **Platform**: ESP32 (D1 Mini form factor). The current `platformio.ini` still
   targets ESP8266 and needs migrating in Phase 1.
 - ✅ **Build system set up** (2026-10-07): PlatformIO, skeleton main.cpp, test framework (Unity), config templates.
@@ -78,9 +78,9 @@ Key behaviours to keep in mind:
 - Input filter on the N7812-1PV (Meanwell switching module, 8 to 20 V in, 12 V at 1 A out): 100 µF electrolytic (35 V or 50 V) plus 0.1 µF ceramic, close to the input pins. Check whether the module needs its own output capacitors.
 - Input filter on the Wemos D1 power shield (5 V and 3.3 V rails): confirm whether it is switching or linear, then fit 100 µF plus 0.1 µF at its input.
 - Check the 1 A output headroom: motor and solenoid together should stay well under 1 A, including at stall.
-- Pin map kept as verified. Add external 10 kΩ pull-ups to 3.3 V for the input-only pins: PRESET A (34), home sensor (35), PRESET B (SVP), LAST EXIT (SVN).
-- Solenoid direction: a 3-way jumper on DIR2 (pull-up, pull-down, or GPIO14) selects the energising direction and keeps GPIO14 for a future stepper. Check whether the 6152 solenoid is polarised first.
-- Level shifter for the status ring data (label 5).
+- Button board: MENU (TCK), E-STOP (label 35, normally closed) and the resistor ladder (label 34). Build the ladder with 1% resistors: 7.5 kΩ PRESET A, 15 kΩ PRESET B, 30 kΩ LAST EXIT, 68 kΩ SPEED, with a 10 kΩ pull-up to 3.3 V. Verify each level with a multimeter.
+- Solenoid direction: a 3-way jumper on DIR2 (label 33) selects the energising direction. Check whether the 6152 solenoid is polarised first.
+- Level shifter for the status ring data (label TMS, GPIO14).
 
 **Next**: resolve OI-16 (hardware review), then start Phase 1 (core bench build).
 

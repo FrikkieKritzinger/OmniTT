@@ -64,15 +64,15 @@ platformio.ini          Build configuration
 
 ### Hardware Pins
 Edit `src/config.h` to match your wiring. The full map, by board silkscreen label, is in [GPIO_REFERENCE.md](GPIO_REFERENCE.md). Summary for the ESP32 D1 Mini:
-- Motor: TCK (DIR1), 32 (PWM1)
-- Lock solenoid: TMS (DIR2), 4 (PWM2)
+- Motor: 25 (DIR1), 32 (PWM1)
+- Lock solenoid: 33 (DIR2, set by jumper), 4 (PWM2)
 - OLED (SPI): 18 (CLK), 23 (MOSI), 27 (DC), 26 (RES)
 - Encoder: 19, 21, 22 (button)
-- MENU: 25. E-STOP: 33. PRESET A: 34. PRESET B: SVP. LAST EXIT: SVN. SPEED: TDO
+- Button board: MENU on TCK, E-STOP on 35, resistor ladder on 34 (PRESET A, PRESET B, LAST EXIT, SPEED)
 - LocoNet: 16 (RX), 17 (TX)
-- Home sensor: 35. Status ring: 5
+- Home sensor: TDO. Status ring: TMS
 
-Strapping pins are used only where their boot state is harmless (labels 5 and TDO). See GPIO_REFERENCE.md for the rules.
+The only strapping pin in use is TDO (home sensor, pulled up at boot). See GPIO_REFERENCE.md for the rules and the ladder levels.
 
 ### EEPROM Layout
 - **0–255**: Runtime configuration (checksum validated)
