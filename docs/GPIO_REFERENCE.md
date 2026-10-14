@@ -4,7 +4,7 @@
 **Source of truth**: `src/config.h` (the `PIN_*` constants). This page is a summary.
 **Naming**: use the board's silkscreen label (for example TDO, TCK). The GPIO number is in brackets.
 **Verified**: the pin labels were checked on the physical board with a touch test (2026-10-12).
-**Pin map finalised**: 2026-10-14 (SRD v0.26).
+**Pin map finalised**: 2026-10-14 (SRD v0.28), updated for the Waveshare display and backlight PWM.
 
 ---
 
@@ -12,11 +12,12 @@
 
 | Function | Board label | Interface | Notes |
 |---|---|---|---|
-| OLED clock | 18 | SPI | 2.44" SPI OLED, 128x64 |
-| OLED data (MOSI) | 23 | SPI | |
-| OLED data/command | 27 | GPIO | |
-| OLED reset | 26 | GPIO | |
-| OLED chip select | — | — | Hard-wired low. The OLED is the only SPI device |
+| Display clock | 18 | SPI | Waveshare 2.0" IPS, 240x320, ST7789V |
+| Display data (DIN, MOSI) | 23 | SPI | |
+| Display data/command (DC) | 27 | GPIO | |
+| Display reset (RST) | — | — | Tied to the ESP32 RST line. No GPIO used |
+| Display chip select (CS) | — | — | Tied to GND. The display is the only SPI device |
+| Display backlight (BL) | 26 | GPIO, PWM | Through a logic-level MOSFET (backlight about 45 mA). Software brightness (CFG-17) |
 | Encoder A | 19 | GPIO | EC11. Internal pull-up |
 | Encoder B | 21 | GPIO | EC11. Internal pull-up |
 | Encoder button | 22 | GPIO | Internal pull-up |
@@ -59,7 +60,7 @@ A 10 kΩ pull-up to 3.3 V sits on the ladder pin. Each button connects its own r
 |---|---|---|
 | 0 | 0 | Strapping (pulled up). Low at reset enters download mode. Unused |
 | 2 | 2 | Strapping. Unused. Reserved for the optional relay in a later phase |
-| 5 | 5 | Strapping. Unused (the status ring moved to TMS) |
+| 5 | 5 | Strapping. Unused |
 | TDI | 12 | Strapping. Must stay low at boot. Unused |
 | SVP | 36 | Input-only. Unused, spare input |
 | SVN | 39 | Input-only. Unused, spare input |
@@ -103,3 +104,5 @@ TCK, TMS, TDO and TDI are the ESP32's JTAG pins. Using them as GPIO disables JTA
 
 - The motor and solenoid direction and PWM pins keep the TB6612 off during reset when pulled down.
 - Strapping pins in use: TDO only, where its boot state is harmless.
+- The display's RST follows the ESP32 RST line, so the display resets with the board.
+- The backlight MOSFET gate has a pull-down, so the backlight stays off until firmware starts. GPIO26 floats during reset.

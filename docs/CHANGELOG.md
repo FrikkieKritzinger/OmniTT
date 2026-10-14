@@ -2,6 +2,34 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-14 - Backlight PWM on GPIO26 (session 5, part 3)
+
+- **Backlight**: PWM from GPIO26 through a logic-level MOSFET, not a trim pot. CFG-17 is
+  now software brightness, with 0 meaning off. This uses the pin freed by the RST tie.
+- **Spec sheet** (`docs/Waveshare_2inch_LCD_Module.pdf`, local copy, gitignored by the
+  `docs/*.pdf` rule): ST7789V2-G4 driver, 240×320, four white LEDs in parallel. Typical
+  backlight current 40 mA, test condition 45 mA. Logic VDD 2.6 to 3.3 V, with inputs up to
+  3.3 V, so the ESP32's 3.3 V logic is compatible. The spec says brightness is set by a
+  resistor or potentiometer, and it doesn't document a PWM input, so PWM dimming needs a
+  bench check.
+- **Licence**: the spec has no licence statement I could find. It's kept local and not
+  committed.
+- **Pins**: 18 used.
+- **SRD v0.28**: HW-10, CFG-17 and OI-14 updated.
+
+## 2026-10-14 - Display changed to Waveshare 2.0" IPS (session 5, part 2)
+
+- **Display**: Waveshare 2.0" IPS, 240×320, ST7789V, SPI. It replaces the 2.44" SSD1306-class
+  OLED (128×64) in the SRD. The earlier OLED pin notes were a mix-up with a 0.96" mono
+  display.
+- **Pins**: CS tied to GND (CS is active-low, so it can't go to 3.3 V). RST tied to the
+  ESP32 RST line, which frees GPIO26. BL tied high through a trim pot, with no GPIO.
+  The display now uses CLK 18, DIN 23 and DC 27. Pins used: 17.
+- **SRD v0.27**: HW-03, HW-10, HW-11, HW-30, RUN-01/03/07/12, CFG-17, OI-01 and OI-14
+  updated. Display wording changed from OLED to display.
+- **Open**: HW-11 size is below the 2.4" minimum in OI-01, so it needs confirming. CFG-17
+  brightness needs a decision: trim pot or software PWM.
+
 ## 2026-10-14 - Pin map finalised with resistor ladder (session 5)
 
 - **Button board**: MENU on TCK (13) and E-STOP on 35, both direct. E-STOP is wired

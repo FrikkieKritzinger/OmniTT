@@ -5,11 +5,12 @@
 // Comments give the board silkscreen label first, then the GPIO number.
 // Strapping pins in use: TDO (home sensor, pulled up at boot) only. See docs/GPIO_REFERENCE.md.
 
-// SPI display (2.44" OLED, 128x64). CS is hard-wired low: the OLED is the only SPI device.
-#define PIN_OLED_CLK    18  // label 18 (GPIO18) - SPI clock
-#define PIN_OLED_MOSI   23  // label 23 (GPIO23) - SPI data
-#define PIN_OLED_DC     27  // label 27 (GPIO27) - Data/command
-#define PIN_OLED_RES    26  // label 26 (GPIO26) - Reset
+// SPI display (Waveshare 2.0" IPS, 240x320, ST7789V). CS is hard-wired low: the display is the only SPI device.
+// RST is tied to the ESP32 RST line. BL is driven by PWM through a MOSFET (backlight draws about 45 mA).
+#define PIN_DISPLAY_CLK   18  // label 18 (GPIO18) - SPI clock
+#define PIN_DISPLAY_MOSI  23  // label 23 (GPIO23) - SPI data (DIN)
+#define PIN_DISPLAY_DC    27  // label 27 (GPIO27) - Data/command
+#define PIN_DISPLAY_BL    26  // label 26 (GPIO26) - Backlight PWM (via MOSFET)
 
 // Rotary encoder (with integrated button)
 #define PIN_ENCODER_A    19  // label 19 (GPIO19) - Encoder A
@@ -54,8 +55,8 @@
 #define MOTOR_STEP_DURATION_MS 50  // Time between motor steps
 
 // Display
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 64
+#define DISPLAY_WIDTH 240
+#define DISPLAY_HEIGHT 320
 
 // EEPROM
 // Storage backend (EEPROM emulation or NVS) to be decided in Phase 1

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.26 |
+| **Document status** | Draft v0.28 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -20,7 +20,7 @@ The controller covers:
 - Positioning the bridge (turntable) or deck (traverser) at configured exit positions.
 - Driving either a stepper motor or a standard DC motor.
 - Switching bridge track polarity, using an internal relay or an external reverse-loop module.
-- Local configuration through an OLED display and rotary encoder.
+- Local configuration through a colour display and rotary encoder.
 - Remote control through LocoNet.
 - Firmware updates over Wi-Fi.
 
@@ -51,7 +51,7 @@ Out of scope: accessory and layout control (for example roundhouse doors or shed
 
 The controller has these parts:
 - An ESP32 microcontroller in a D1 Mini form factor.
-- A graphical SPI OLED display.
+- A graphical SPI colour display (2.0" IPS, 240×320, ST7789V).
 - An EC11 rotary encoder with a push button.
 - A MENU button.
 - An emergency STOP input.
@@ -62,7 +62,7 @@ The controller has these parts:
 
 ```
            ┌──────────────┐
- LocoNet ──┤              ├── OLED display (SPI)
+ LocoNet ──┤              ├── Display (SPI)
  Main PWR ─┤              ├── Rotary encoder + button
  Track PWR ┤   ESP32      ├── MENU button / E-STOP
  Home ─────┤ (D1 Mini)    ├── Motor + lock solenoid (TB6612FNG)
@@ -81,7 +81,7 @@ The controller has these parts:
 |---|---|
 | HW-01 | The controller shall use an ESP32 microcontroller in a Wemos D1 Mini form factor (e.g., ESP32-WROOM-32 with D1 Mini pinout). |
 | HW-02 | The controller shall provide Wi-Fi in both station (client) and Access Point modes. |
-| HW-03 | The power input shall only be used to power the D1, OLED, and motor control modules and motors. |
+| HW-03 | The power input shall only be used to power the D1, display, and motor control modules and motors. |
 | HW-04 | The controller shall not provide power to the bridge, but switch power from supplied DCC or DC track power only |
 | HW-05 | The default configuration will pass track power through, and rely on the TT to invert polarity. This can be changed in config to allow an onboard relay to handle power inverting to the bridge. **[DEFERRED – relay build, later phase]** |
 | HW-06 | Local selections and command will take preference over Loconet. ie loconet will only be applied if the bridge is not already busy with another movement |
@@ -90,8 +90,8 @@ The controller has these parts:
 
 | ID | Requirement |
 |---|---|
-| HW-10 | The controller shall have a graphical OLED display connected over SPI. |
-| HW-11 | The display shall be at least 2.4" diagonal; 2.44" SPI OLED (128×64) is the standard. **[RESOLVED]** |
+| HW-10 | The controller shall have a graphical colour display connected over SPI: Waveshare 2.0" IPS, 240×320, ST7789V controller (spec: `docs/Waveshare_2inch_LCD_Module.pdf`, local copy, not committed). RST is tied to the ESP32 RST line, CS is tied low, and the backlight (BL, about 45 mA, four white LEDs) is driven by PWM from GPIO26 through a MOSFET. |
+| HW-11 | The display is a 2.0" IPS (240×320), selected 2026-10-14. This is below the 2.4" minimum recorded under OI-01. **[CONFIRM – see OI-01 note]** |
 | HW-12 | The controller shall have one EC11-type rotary encoder module with an integrated push button. |
 | HW-13 | The controller shall have a dedicated MENU push button to switch between RUN mode and MENU mode. **[RESOLVED – OI-02]** |
 | HW-14 | The controller shall have a dedicated emergency STOP push button, wired normally closed so that a broken wire stops the bridge. **[RESOLVED – OI-03]** |
@@ -117,7 +117,7 @@ The controller has these parts:
 
 | ID | Requirement |
 |---|---|
-| HW-30 | The enclosure is a Sanhe 18-33 console enclosure. The OLED display sits in the rectangular display window. |
+| HW-30 | The enclosure is a Sanhe 18-33 console enclosure. The display sits in the rectangular display window. |
 | HW-31 | The rotary encoder with knob sits to the right of the display window, as the enclosure provides. |
 | HW-32 | Six button positions sit in the bottom-right area of the console. The MENU and E-STOP buttons are placed here; the remaining four are assigned to shortcuts (section 5.5). The MENU button does not need to be adjacent to the display. **[RESOLVED – OI-02/03]** |
 
@@ -148,13 +148,13 @@ The controller shall have two top-level modes:
 
 | ID | Requirement |
 |---|---|
-| RUN-01 | The OLED shall show the current bridge position graphically. |
+| RUN-01 | The display shall show the current bridge position graphically. |
 | RUN-02 | The graphic shall match the configured TT type (turntable or traverser). |
-| RUN-03 | The OLED shall show a **selection ring** (cursor) that marks the target exit in TT mode, or 2 brackets to highlight the target exit in Traverser mode. |
+| RUN-03 | The display shall show a **selection ring** (cursor) that marks the target exit in TT mode, or 2 brackets to highlight the target exit in Traverser mode. |
 | RUN-04 | Turning the rotary encoder shall move the selection ring (or selection brackets) through the configured exits. |
 | RUN-05 | Pressing the encoder button shall confirm the selected exit as the target. |
 | RUN-06 | After a target is confirmed, the controller shall rotate or move the bridge to that exit automatically. |
-| RUN-07 | The OLED must update the display to indicate the movement of the bridge from current position to target exit aligned with bridge movement. |
+| RUN-07 | The display must update to indicate the movement of the bridge from current position to target exit aligned with bridge movement. |
 
 
 ### 5.2 Emergency stop
@@ -163,7 +163,7 @@ The controller shall have two top-level modes:
 |---|---|
 | RUN-10 | The controller shall have an emergency STOP function that halts bridge motion immediately. |
 | RUN-11 | An emergency STOP shall be triggered by the local STOP input or by a DCC/LocoNet STOP command. |
-| RUN-12 | While a STOP is active, the OLED shall change to a distinct stop screen. |
+| RUN-12 | While a STOP is active, the display shall change to a distinct stop screen. |
 | RUN-13 | The stop screen shall show whether the stop came from DCC or from the local input. |
 | RUN-14 | When LocoNet is enabled (DCC-01), a local eStop shall push a STOP command to LocoNet. |
 
@@ -185,7 +185,7 @@ The controller shall have two top-level modes:
 
 ### 5.4 Status ring
 
-The status ring (HW-16) shows the controller state from across the room. Detailed information stays on the OLED.
+The status ring (HW-16) shows the controller state from across the room. Detailed information stays on the display.
 
 | ID | Requirement |
 |---|---|
@@ -300,7 +300,7 @@ Opens the turntable setup values.
 | CFG-14 | **Move Timeout** | Time | Maximum duration of a move. If exceeded, the controller stops the motor and reports an error. |
 | CFG-15 | **Ramp Time** | Time | Soft-start acceleration time to reduce mechanical wear. 0 disables the ramp. |
 | CFG-16 | **Status Ring Brightness** | 0–100 % | Brightness of the status ring (HW-16). |
-| CFG-17 | **OLED Brightness** | 0–100 % | Brightness (contrast) of the OLED display. |
+| CFG-17 | **Display Brightness** | 0–100 % | Backlight brightness, set by software PWM on GPIO26. 0 turns the backlight off. |
 
 ### 7.4 Config → Exit configuration
 Sets the position, number and name of each exit.
@@ -375,7 +375,7 @@ Questions and design considerations from the source material, still to be resolv
 
 | ID | Topic | Status & Decision |
 |---|---|---|
-| OI-01 | **Display** | ✅ **RESOLVED (2026-10-07):** Display priority is SIZE. Use 2.44" SPI OLED (128×64) to meet the 2.4" minimum requirement. SPI interface frees the I²C bus for sensors. |
+| OI-01 | **Display** | ✅ **RESOLVED (2026-10-07):** Display priority is SIZE. Use an SPI display. **Superseded 2026-10-14:** the Waveshare 2.0" IPS (240×320, ST7789V) is selected (HW-10). It is below the 2.4" minimum, so HW-11 needs confirming. |
 | OI-11 | **GPIO availability** | ✅ **RESOLVED (2026-10-07):** Upgrade from ESP8266 D1 Mini to ESP32 D1 Mini. Provides 30+ usable GPIO with no expander needed. Eliminates pin constraints, simplifies hardware, enables future expansion. |
 | OI-04 | **Motor driver** | ✅ **RESOLVED (2026-10-07):** Use TB6612FNG Dual Channel H-Bridge modules. 4 GPIO pins per module (2 direction, 2 PWM). Can drive stepper or DC motor up to 12V/1.2A. Scope Phase 1: Fleischmann 6152 (48 positions, solenoid-locked, bidirectional DC motor). |
 | OI-05 | **Position tracking** | ✅ **RESOLVED (2026-10-07):** Time-based tracking via calibrated motor timing. Learn milliseconds-per-position via menu option "Index Hold Time". Dead-reckoning between home passes. Solenoid auto-locks at each index. First move after power-up recalibrates position via home sensor. |
@@ -388,6 +388,6 @@ Questions and design considerations from the source material, still to be resolv
 | OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |
 | OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (board label 4) and DIR2 (board label 33, set by a jumper). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
 | OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
-| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 18 pins. Strapping pins in use: TDO only (home sensor, pulled up at boot). Four shortcut buttons share one ADC input (HW-17). MENU and E-STOP have their own pins on the button board. Labels 0, 2, 5 and TDI are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
+| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 18 pins. Strapping pins in use: TDO only (home sensor, pulled up at boot). Four shortcut buttons share one ADC input (HW-17). MENU and E-STOP have their own pins on the button board. The display's RST uses no GPIO, and BL uses GPIO26 (PWM). Labels 0, 2, 5, TDI, SVP and SVN are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
 | OI-15 | **Index hold and index spacing** | ✅ **RESOLVED (2026-10-12):** Only fitted index pieces are stops; the 48 positions are 7.5° apart. The lock is passive: once released, the pin rubs until it drops into the next index, which cuts motor power. The solenoid is released mid-gap after the previous index (RUN-25). CFG-08 is the calibrated time per step at each speed, learned once by a full-revolution calibration (RUN-27). No per-gap table is needed. |
 | OI-16 | **Hardware design review** | Open for discussion. Covers the exposed pins and silkscreen of the chosen D1 Mini ESP32 board compared with the pin map, the level shifter for the status ring (WS2812 data at 5 V), the external pull-up and pull-down resistors, power supply and wiring, and the enclosure layout. |

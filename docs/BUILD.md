@@ -66,7 +66,7 @@ platformio.ini          Build configuration
 Edit `src/config.h` to match your wiring. The full map, by board silkscreen label, is in [GPIO_REFERENCE.md](GPIO_REFERENCE.md). Summary for the ESP32 D1 Mini:
 - Motor: 25 (DIR1), 32 (PWM1)
 - Lock solenoid: 33 (DIR2, set by jumper), 4 (PWM2)
-- OLED (SPI): 18 (CLK), 23 (MOSI), 27 (DC), 26 (RES)
+- Display (SPI, Waveshare 2.0" IPS): 18 (CLK), 23 (DIN), 27 (DC), 26 (backlight PWM via MOSFET). RST on the ESP32 RST line
 - Encoder: 19, 21, 22 (button)
 - Button board: MENU on TCK, E-STOP on 35, resistor ladder on 34 (PRESET A, PRESET B, LAST EXIT, SPEED)
 - LocoNet: 16 (RX), 17 (TX)

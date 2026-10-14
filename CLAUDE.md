@@ -1,7 +1,7 @@
 # OmniTT - Development Guide
 
 **Project**: OmniTT - universal model railroad turntable / traverser controller
-**Purpose**: Standalone local control (OLED + rotary encoder) of a turntable or
+**Purpose**: Standalone local control (colour display + rotary encoder) of a turntable or
 traverser, with optional remote control as a LocoNet accessory decoder
 **Language**: C++ (Arduino framework, PlatformIO)
 **Target**: ESP32 in a Wemos D1 Mini form factor (WROOM-32)
@@ -50,7 +50,8 @@ Key behaviours to keep in mind:
 
 - **Phase 0 (Requirements)**: ✅ Complete - SRD v0.21 (2026-10-11). All open issues
   OI-01..OI-14 are resolved. The relay is deferred to a later phase (HW-05, CFG-05).
-- **Pin map**: finalised 2026-10-14, 18 pins, with a resistor ladder for four shortcut buttons. See docs/GPIO_REFERENCE.md and src/config.h.
+- **Pin map**: finalised 2026-10-14, 17 pins, with a resistor ladder for four shortcut buttons. See docs/GPIO_REFERENCE.md and src/config.h.
+- **Display**: Waveshare 2.0" IPS (240×320, ST7789V, SPI). CS tied low, RST on the ESP32 RST line, BL driven by PWM from GPIO26 through a MOSFET. HW-11 size needs confirming (below the 2.4" minimum under OI-01). Spec copy: `docs/Waveshare_2inch_LCD_Module.pdf` (local, gitignored; licence not stated in the spec).
 - **Platform**: ESP32 (D1 Mini form factor). The current `platformio.ini` still
   targets ESP8266 and needs migrating in Phase 1.
 - ✅ **Build system set up** (2026-10-07): PlatformIO, skeleton main.cpp, test framework (Unity), config templates.
@@ -58,7 +59,7 @@ Key behaviours to keep in mind:
 
 **Implementation plan** (agreed 2026-10-11; detail in docs/CHANGELOG.md):
 1. Core bench build: ESP32 build migration, config and EEPROM, motor and solenoid
-   drivers, home sensor, position tracker, move controller, native tests, minimal OLED.
+   drivers, home sensor, position tracker, move controller, native tests, minimal display.
 2. Local UI: encoder, buttons, RUN and MENU screens, stop screen, calibration, status ring.
 3. Wi-Fi: setup mode, AP on demand, web configuration, firmware update, Info screen.
 4. LocoNet: accessory addressing, STOP handling, local priority (HW-06).
@@ -81,6 +82,7 @@ Key behaviours to keep in mind:
 - Button board: MENU (TCK), E-STOP (label 35, normally closed) and the resistor ladder (label 34). Build the ladder with 1% resistors: 7.5 kΩ PRESET A, 15 kΩ PRESET B, 30 kΩ LAST EXIT, 68 kΩ SPEED, with a 10 kΩ pull-up to 3.3 V. Verify each level with a multimeter.
 - Solenoid direction: a 3-way jumper on DIR2 (label 33) selects the energising direction. Check whether the 6152 solenoid is polarised first.
 - Level shifter for the status ring data (label TMS, GPIO14).
+- Backlight: logic-level MOSFET on GPIO26 for about 45 mA, with a pull-down on the gate. Check on the bench how the module's BL responds to PWM, since the spec describes brightness set by resistor, not PWM.
 
 **Next**: resolve OI-16 (hardware review), then start Phase 1 (core bench build).
 
@@ -97,7 +99,7 @@ Pure logic is kept separate from hardware so it can be tested on the host.
 | `solenoid_driver` | Lock release during moves (pin pending OI-12) | No |
 | `home_sensor` | Microswitch input, debounce | No |
 | `input` | Encoder decoding, buttons, press and hold detection | Logic only |
-| `display` | SPI OLED: bridge graphic, selection ring, stop screen, red and green states | No |
+| `display` | SPI colour display (Waveshare 2.0" IPS, ST7789V): bridge graphic, selection ring, stop screen, red and green states | No |
 | `ui_menu` | RUN and MENU modes, menu tree, SAVE and CANCEL | Logic only |
 | `status_ring` | NeoPixel states (RUN-30..33) | No |
 | `wifi_manager` / `web_server` | AP on demand, setup mode, web configuration, firmware update | No |
