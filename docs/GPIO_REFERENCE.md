@@ -8,7 +8,7 @@
 
 ---
 
-## Initial build: 18 pins
+## Initial build: 16 pins (LocoNet deferred)
 
 | Function | Board label | Interface | Notes |
 |---|---|---|---|
@@ -25,8 +25,6 @@
 | E-STOP | 35 | GPIO, input-only | Normally closed, button board, external pull-up. A broken wire reads as stop |
 | Resistor ladder | 34 | GPIO, input-only, ADC1 | PRESET A, PRESET B, LAST EXIT and SPEED share this pin (see ladder below) |
 | Home sensor | TDO [15] | GPIO, strapping | Microswitch, internal pull-up. Holding it at power-up only silences the boot log |
-| LocoNet RX | 16 | UART2 RX | |
-| LocoNet TX | 17 | UART2 TX | |
 | Motor direction (DIR1) | 25 | GPIO | TB6612FNG channel A. External 10 kΩ pull-down |
 | Motor PWM (PWM1) | 32 | PWM | TB6612FNG channel A. External 10 kΩ pull-down |
 | Solenoid direction (DIR2) | 33 | GPIO | TB6612FNG channel B. Set by a 3-way jumper (pull-up, pull-down or GPIO). Pull-down by default |
@@ -37,18 +35,18 @@
 
 ## Resistor ladder (button board)
 
-A 10 kΩ pull-up to 3.3 V sits on the ladder pin. Each button connects its own resistor to GND.
+A series string runs from 3.3 V through a 1 kΩ resistor to the ladder pin, with a 0.1 µF filter to GND. The string is 430 Ω, 270 Ω, 430 Ω, 680 Ω and 1.3 kΩ to GND. Each button taps a point along it, so pressing one shorts the resistors below its tap.
 
-| Button | Resistor | Voltage (mV) |
+| Button | Shorts to GND through | Voltage (mV) |
 |---|---|---|
-| PRESET A | 7.5 kΩ | 1410 |
-| PRESET B | 15 kΩ | 1980 |
-| LAST EXIT | 30 kΩ | 2480 |
-| SPEED | 68 kΩ | 2880 |
-| No button | open | 3300 |
+| PRESET A (Button 4) | 430 Ω | 992 |
+| PRESET B (Button 3) | 700 Ω | 1359 |
+| LAST EXIT (Button 2) | 1.13 kΩ | 1755 |
+| SPEED (Button 1) | 1.81 kΩ | 2123 |
+| No button | 3.11 kΩ | 2497 |
 
 - Accept a reading only if it is within 150 mV of a level.
-- Below 1000 mV is a fault (for example a short to GND). Ignore it, and never treat it as a button press.
+- Below 700 mV is a fault (for example a short to GND). Ignore it, and never treat it as a button press.
 - Use 1% resistors. Verify each level with a multimeter on the button board.
 - Two buttons pressed together give one reading, which matches no level, so ignore it.
 
@@ -61,6 +59,8 @@ A 10 kΩ pull-up to 3.3 V sits on the ladder pin. Each button connects its own r
 | 0 | 0 | Strapping (pulled up). Low at reset enters download mode. Unused |
 | 2 | 2 | Strapping. Unused. Reserved for the optional relay in a later phase |
 | 5 | 5 | Strapping. Unused |
+| 16 | 16 | Reserved for LocoNet RX (later phase) |
+| 17 | 17 | Reserved for LocoNet TX (later phase) |
 | TDI | 12 | Strapping. Must stay low at boot. Unused |
 | SVP | 36 | Input-only. Unused, spare input |
 | SVN | 39 | Input-only. Unused, spare input |
@@ -79,6 +79,7 @@ A 10 kΩ pull-up to 3.3 V sits on the ladder pin. Each button connects its own r
 
 ## Reserved for later phases
 
+- **LocoNet** (later phase, LN requirements): RX on label 16, TX on label 17. Needs a LocoNet interface circuit as well.
 - **Relay** (optional, HW-05/CFG-05): not in the initial build. Label 2 is the candidate, with a transistor driver and pull-down so the relay stays off at boot.
 - **Stepper motor** (later phase): needs DIR2 back from the jumper, which is set to GPIO mode.
 - **Other turntable types** (phase 6): re-check the pin budget at that point.

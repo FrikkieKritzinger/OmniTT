@@ -33,14 +33,14 @@ Key behaviours to keep in mind:
 - Two modes: **RUN** (select exit with encoder, confirm, bridge moves) and
   **MENU** (configuration). MENU can't be entered mid-move; movement commands
   are ignored while in MENU (MD-04/05).
-- **E-stop** halts motion immediately, from a local button or a LocoNet STOP. A
-  local e-stop is also sent onto LocoNet (RUN-10..14).
-- **Local control takes priority over LocoNet** - a LocoNet command is only
+- **E-stop** halts motion immediately, from a local button. Once LocoNet is added
+  (later phase), a LocoNet STOP also triggers it and a local e-stop is sent onto LocoNet (RUN-10..14).
+- **Local control takes priority over LocoNet** (later phase) - a LocoNet command is only
   acted on when the bridge isn't already moving (HW-06).
 - **Position persistence**: bridge position kept in EEPROM, written when motion
   completes to limit flash wear; home tracked during normal running (RUN-20/21,
   DAT-02/04). Factory defaults live in a reserved region (MNU-10/11).
-- **LocoNet exit addressing**: base address + exit number (DCC-02).
+- **LocoNet exit addressing** (later phase): base address + exit number (DCC-02).
 - The controller switches supplied track power to the bridge; it never powers
   the bridge itself (HW-03..05).
 
@@ -50,7 +50,7 @@ Key behaviours to keep in mind:
 
 - **Phase 0 (Requirements)**: ✅ Complete - SRD v0.21 (2026-10-11). All open issues
   OI-01..OI-14 are resolved. The relay is deferred to a later phase (HW-05, CFG-05).
-- **Pin map**: finalised 2026-10-14, 17 pins, with a resistor ladder for four shortcut buttons. See docs/GPIO_REFERENCE.md and src/config.h.
+- **Pin map**: finalised 2026-10-14, 16 pins, with a resistor ladder for four shortcut buttons. LocoNet pins (16, 17) are reserved for a later phase. See docs/GPIO_REFERENCE.md and src/config.h.
 - **Display**: Waveshare 2.0" IPS (240×320, ST7789V, SPI). CS tied low, RST on the ESP32 RST line, BL driven by PWM from GPIO26 through a MOSFET. HW-11 size needs confirming (below the 2.4" minimum under OI-01). Spec copy: `docs/Waveshare_2inch_LCD_Module.pdf` (local, gitignored; licence not stated in the spec).
 - **Platform**: ESP32 (D1 Mini form factor). The current `platformio.ini` still
   targets ESP8266 and needs migrating in Phase 1.
@@ -62,9 +62,8 @@ Key behaviours to keep in mind:
    drivers, home sensor, position tracker, move controller, native tests, minimal display.
 2. Local UI: encoder, buttons, RUN and MENU screens, stop screen, calibration, status ring.
 3. Wi-Fi: setup mode, AP on demand, web configuration, firmware update, Info screen.
-4. LocoNet: accessory addressing, STOP handling, local priority (HW-06).
-5. Field hardening: 6152 field test, watchdog, EEPROM verification.
-6. Later: other turntable types, traversers, stepper motors, unindexed and Hall-effect indexing, relay builds.
+4. Field hardening: 6152 field test, watchdog, EEPROM verification.
+5. Later: LocoNet (accessory addressing, STOP handling, local priority HW-06), other turntable types, traversers, stepper motors, unindexed and Hall-effect indexing, relay builds.
 
 **Open items** (SRD section 10):
 - OI-16: hardware design review (board silkscreen vs pin map, level shifter for the status ring, pull-up and pull-down resistors, power, enclosure wiring).
@@ -79,7 +78,7 @@ Key behaviours to keep in mind:
 - Input filter on the N7812-1PV (Meanwell switching module, 8 to 20 V in, 12 V at 1 A out): 100 µF electrolytic (35 V or 50 V) plus 0.1 µF ceramic, close to the input pins. Check whether the module needs its own output capacitors.
 - Input filter on the Wemos D1 power shield (5 V and 3.3 V rails): confirm whether it is switching or linear, then fit 100 µF plus 0.1 µF at its input.
 - Check the 1 A output headroom: motor and solenoid together should stay well under 1 A, including at stall.
-- Button board: MENU (TCK), E-STOP (label 35, normally closed) and the resistor ladder (label 34). Build the ladder with 1% resistors: 7.5 kΩ PRESET A, 15 kΩ PRESET B, 30 kΩ LAST EXIT, 68 kΩ SPEED, with a 10 kΩ pull-up to 3.3 V. Verify each level with a multimeter.
+- Button board: MENU (TCK), E-STOP (label 35, normally closed) and the resistor ladder (label 34). Build the series ladder with 1% resistors: 1 kΩ from 3.3 V, then 430 Ω, 270 Ω, 430 Ω, 680 Ω and 1.3 kΩ to GND, with a 0.1 µF filter on the ADC node. Buttons tap the ladder at 430 Ω (PRESET A), 700 Ω (PRESET B), 1.13 kΩ (LAST EXIT) and 1.81 kΩ (SPEED). Verify each level with a multimeter.
 - Solenoid direction: a 3-way jumper on DIR2 (label 33) selects the energising direction. Check whether the 6152 solenoid is polarised first.
 - Level shifter for the status ring data (label TMS, GPIO14).
 - Backlight: logic-level MOSFET on GPIO26 for about 45 mA, with a pull-down on the gate. Check on the bench how the module's BL responds to PWM, since the spec describes brightness set by resistor, not PWM.
@@ -103,7 +102,7 @@ Pure logic is kept separate from hardware so it can be tested on the host.
 | `ui_menu` | RUN and MENU modes, menu tree, SAVE and CANCEL | Logic only |
 | `status_ring` | NeoPixel states (RUN-30..33) | No |
 | `wifi_manager` / `web_server` | AP on demand, setup mode, web configuration, firmware update | No |
-| `loconet_interface` | Accessory addressing, STOP, priority rules | Partly |
+| `loconet_interface` | Accessory addressing, STOP, priority rules (later phase) | Partly |
 
 ---
 

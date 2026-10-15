@@ -2,6 +2,33 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-15 - LocoNet moved to a later phase (session 6, part 2)
+
+- **LocoNet is not in the initial design.** The SRD marks LocoNet requirements as deferred:
+  HW-06, HW-20, RUN-11, RUN-13, RUN-14, the DCC setup menu (7.5), section 8, and the scope
+  and overview lines. The requirements stay in the SRD for the later phase.
+- **Pins**: LocoNet RX (label 16) and TX (label 17) are reserved for the later phase, not
+  assigned. The initial build uses 16 pins.
+- **config.h**: LocoNet pin definitions removed. The LocoNet defaults are marked later phase.
+- **CLAUDE.md**: LocoNet moved to the later-phase item in the plan, with the architecture
+  and key behaviours marked accordingly.
+- **SRD v0.30**.
+
+## 2026-10-15 - Ladder changed to a series string (session 6)
+
+- **Ladder topology**: series string, 1 kΩ from 3.3 V, then 430 Ω, 270 Ω, 430 Ω, 680 Ω and
+  1.3 kΩ to GND, with a 0.1 µF filter on the ADC node. Each button taps a point along it.
+  This replaces the parallel-resistor design. The idle level moves from 3.3 V to 2.5 V,
+  which keeps the reading away from the top of the ESP32 ADC range.
+- **Levels**: 992, 1359, 1755 and 2123 mV for the four buttons, and 2497 mV for no button.
+  The fault band is below 700 mV.
+- **Button assignment**: PRESET A (Button 4), PRESET B (Button 3), LAST EXIT (Button 2), SPEED
+  (Button 1). The assignment is in `config.h` and can change without touching the hardware.
+- **MENU**: stays on a direct pin (TCK), as set earlier. Keeping it off the ladder means the
+  ladder carries only the four shortcut buttons.
+- **Files**: `src/config.h`, `docs/GPIO_REFERENCE.md`, SRD (v0.29, HW-17), and the `CLAUDE.md`
+  to-do list.
+
 ## 2026-10-14 - Backlight PWM on GPIO26 (session 5, part 3)
 
 - **Backlight**: PWM from GPIO26 through a logic-level MOSFET, not a trim pot. CFG-17 is

@@ -22,18 +22,17 @@
 #define PIN_ESTOP        35  // label 35 (GPIO35) - Emergency STOP, normally closed (input-only, external pull-up)
 #define PIN_BUTTON_LADDER 34 // label 34 (GPIO34) - Resistor ladder: PRESET A, PRESET B, LAST EXIT, SPEED (ADC1, input-only)
 
-// Resistor ladder levels in millivolts, with a 10 kΩ pull-up to 3.3 V
-#define LADDER_MV_PRESET_A  1410  // 7.5 kΩ
-#define LADDER_MV_PRESET_B  1980  // 15 kΩ
-#define LADDER_MV_LAST_EXIT 2480  // 30 kΩ
-#define LADDER_MV_SPEED     2880  // 68 kΩ
-#define LADDER_MV_NONE      3300  // no button pressed
+// Resistor ladder: series string (430, 270, 430, 680 and 1.3k ohm to GND) fed from 3.3 V through 1 kΩ,
+// with a 0.1 µF filter on the ADC node. Levels in millivolts. Button assignment is set here.
+#define LADDER_MV_PRESET_A  992   // Button 4: 430 Ω to GND
+#define LADDER_MV_PRESET_B  1359  // Button 3: 700 Ω
+#define LADDER_MV_LAST_EXIT 1755  // Button 2: 1.13 kΩ
+#define LADDER_MV_SPEED     2123  // Button 1: 1.81 kΩ
+#define LADDER_MV_NONE      2497  // no button: 3.11 kΩ
 #define LADDER_TOLERANCE_MV  150  // reading must be within this of a level
-#define LADDER_FAULT_LOW_MV 1000  // below this is a fault (short to GND)
+#define LADDER_FAULT_LOW_MV  700  // below this is a fault (short to GND)
 
-// LocoNet interface (UART2)
-#define PIN_LOCONET_RX   16  // label 16 (GPIO16) - LocoNet RX
-#define PIN_LOCONET_TX   17  // label 17 (GPIO17) - LocoNet TX
+// LocoNet (later phase, not in the initial build): RX label 16 (GPIO16) and TX label 17 (GPIO17) are reserved.
 
 // Motor (TB6612FNG channel A)
 #define PIN_MOTOR_DIR1   25  // label 25 (GPIO25) - Motor direction
@@ -76,7 +75,7 @@
 #define WIFI_SETUP_MODE_HOLD_TIME_MS 3000
 #define WIFI_CONNECT_TIMEOUT_MS 300
 
-// LocoNet
+// LocoNet (later phase)
 #define LOCONET_STOP_BROADCAST_ENABLED 1  // Local e-stop sends to LocoNet (RUN-10..14)
 
 #endif // CONFIG_H

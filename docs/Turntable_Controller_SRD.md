@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.28 |
+| **Document status** | Draft v0.30 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -21,7 +21,7 @@ The controller covers:
 - Driving either a stepper motor or a standard DC motor.
 - Switching bridge track polarity, using an internal relay or an external reverse-loop module.
 - Local configuration through a colour display and rotary encoder.
-- Remote control through LocoNet.
+- Remote control through LocoNet. **[DEFERRED – later phase]**
 - Firmware updates over Wi-Fi.
 
 Out of scope: accessory and layout control (for example roundhouse doors or shed lights). These belong to separate decoders, not to the turntable controller.
@@ -58,11 +58,11 @@ The controller has these parts:
 - A home microswitch input.
 - A TB6612FNG dual H-bridge driving the motor and the lock solenoid.
 - Track and bridge power switching.
-- A LocoNet interface.
+- A LocoNet interface (later phase).
 
 ```
            ┌──────────────┐
- LocoNet ──┤              ├── Display (SPI)
+ (LocoNet, later)┤           ├── Display (SPI)
  Main PWR ─┤              ├── Rotary encoder + button
  Track PWR ┤   ESP32      ├── MENU button / E-STOP
  Home ─────┤ (D1 Mini)    ├── Motor + lock solenoid (TB6612FNG)
@@ -84,7 +84,7 @@ The controller has these parts:
 | HW-03 | The power input shall only be used to power the D1, display, and motor control modules and motors. |
 | HW-04 | The controller shall not provide power to the bridge, but switch power from supplied DCC or DC track power only |
 | HW-05 | The default configuration will pass track power through, and rely on the TT to invert polarity. This can be changed in config to allow an onboard relay to handle power inverting to the bridge. **[DEFERRED – relay build, later phase]** |
-| HW-06 | Local selections and command will take preference over Loconet. ie loconet will only be applied if the bridge is not already busy with another movement |
+| HW-06 | **[DEFERRED – later phase, with LocoNet]** Local selections and command will take preference over Loconet. ie loconet will only be applied if the bridge is not already busy with another movement |
 
 ### 3.2 User interface hardware
 
@@ -97,13 +97,13 @@ The controller has these parts:
 | HW-14 | The controller shall have a dedicated emergency STOP push button, wired normally closed so that a broken wire stops the bridge. **[RESOLVED – OI-03]** |
 | HW-15 | The eStop button shall stop bridge movement immediately |
 | HW-16 | The controller shall have a 12-pixel addressable RGB (NeoPixel) status ring mounted under the rotary encoder knob. The ring's 35 mm inside diameter fits the 35 mm aluminium knob, leaving the pixels visible around the knob edge. Implementation deferred to a later phase. |
-| HW-17 | The four shortcut buttons (PRESET A, PRESET B, LAST EXIT, SPEED) shall share one ADC input through a resistor ladder with a 10 kΩ pull-up to 3.3 V. Each button has its own resistor, and the four levels are 1410, 1980, 2480 and 2880 mV, with 3300 mV for no button. A reading shall be accepted only within 150 mV of a level. A reading below 1000 mV is a fault and shall never be treated as a button press. |
+| HW-17 | The four shortcut buttons (PRESET A, PRESET B, LAST EXIT, SPEED) shall share one ADC input through a series resistor ladder: 1 kΩ from 3.3 V, then 430 Ω, 270 Ω, 430 Ω, 680 Ω and 1.3 kΩ to GND, with a 0.1 µF filter on the ADC node. Each button taps a point on the ladder. The levels are 992, 1359, 1755 and 2123 mV for the four buttons, and 2497 mV for no button. A reading shall be accepted only within 150 mV of a level. A reading below 700 mV is a fault and shall never be treated as a button press. |
 
 ### 3.3 Electrical interfaces
 
 | ID | Interface | Direction | Description |
 |---|---|---|---|
-| HW-20 | LocoNet | Bidirectional | LocoNet bus connection for DCC control. |
+| HW-20 | LocoNet | Bidirectional | **[DEFERRED – later phase]** LocoNet bus connection for DCC control. |
 | HW-21 | Main power | IN | Supply for the controller and motor. |
 | HW-22 | Track power | IN | DC or DCC track power feed. |
 | HW-23 | Bridge power | OUT | Switched and polarity-controlled track power to the bridge. |
@@ -162,10 +162,10 @@ The controller shall have two top-level modes:
 | ID | Requirement |
 |---|---|
 | RUN-10 | The controller shall have an emergency STOP function that halts bridge motion immediately. |
-| RUN-11 | An emergency STOP shall be triggered by the local STOP input or by a DCC/LocoNet STOP command. |
+| RUN-11 | An emergency STOP shall be triggered by the local STOP input. A DCC/LocoNet STOP command shall also trigger it, once LocoNet is added (later phase). |
 | RUN-12 | While a STOP is active, the display shall change to a distinct stop screen. |
-| RUN-13 | The stop screen shall show whether the stop came from DCC or from the local input. |
-| RUN-14 | When LocoNet is enabled (DCC-01), a local eStop shall push a STOP command to LocoNet. |
+| RUN-13 | The stop screen shall show whether the stop came from DCC or from the local input. **[DCC source deferred – later phase]** |
+| RUN-14 | **[DEFERRED – later phase]** When LocoNet is enabled (DCC-01), a local eStop shall push a STOP command to LocoNet. |
 
 ### 5.3 Position tracking
 
@@ -311,7 +311,7 @@ Sets the position, number and name of each exit.
 | EXT-02 | **Remove** | Removes an existing exit position. |
 | EXT-03 | **Clear** | Removes **all** exit positions. ⚠️ This cannot be undone and shall require confirmation (MNU-07). |
 
-### 7.5 Config → DCC Setup
+### 7.5 Config → DCC Setup **[DEFERRED – later phase]**
 Enables or disables DCC control and sets the DCC base address. LocoNet is the intended DCC interface, not a direct DCC track decoder.
 
 | ID | Parameter | Values | Description |
@@ -345,7 +345,7 @@ Opens the Wi-Fi setup values.
 
 ---
 
-## 8. LocoNet / DCC Requirements
+## 8. LocoNet / DCC Requirements **[DEFERRED – later phase. Not in the initial build]**
 
 | ID | Requirement |
 |---|---|
@@ -388,6 +388,6 @@ Questions and design considerations from the source material, still to be resolv
 | OI-10 | **Position persistence** | ✅ **RESOLVED (2026-10-11):** Position is saved in EEPROM when motion completes (DAT-02/04). After power-up, the saved position is assumed and shown uncertain until the first home pass (RUN-22/23). An interrupted move is treated the same as an orderly restart, so no move-in-progress flag is needed. |
 | OI-12 | **Lock solenoid output** | ✅ **RESOLVED (2026-10-11):** The solenoid runs from TB6612FNG channel B. The 6152 motor and solenoid are both 12 V and draw a few hundred mA, well within the 1.2 A rating. Pins: channel B uses PWM2 (board label 4) and DIR2 (board label 33, set by a jumper). Both pins must be held low at reset (external pull-downs) so the solenoid stays off during boot. |
 | OI-13 | **TB6612FNG standby** | ✅ **RESOLVED (2026-10-11):** The DFRobot TB6612FNG board has no standby line, so no GPIO is used. |
-| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 18 pins. Strapping pins in use: TDO only (home sensor, pulled up at boot). Four shortcut buttons share one ADC input (HW-17). MENU and E-STOP have their own pins on the button board. The display's RST uses no GPIO, and BL uses GPIO26 (PWM). Labels 0, 2, 5, TDI, SVP and SVN are unused. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
+| OI-14 | **Pin budget and strapping pins** | ✅ **RESOLVED (2026-10-11):** The initial build uses 16 pins. Strapping pins in use: TDO only (home sensor, pulled up at boot). Four shortcut buttons share one ADC input (HW-17). MENU and E-STOP have their own pins on the button board. The display's RST uses no GPIO, and BL uses GPIO26 (PWM). Labels 0, 2, 5, TDI, SVP and SVN are unused. LocoNet pins (labels 16 and 17) are reserved for the later phase. The relay is deferred to a later phase (HW-05, CFG-05), so GPIO2 is not needed. No I²C expander is used. |
 | OI-15 | **Index hold and index spacing** | ✅ **RESOLVED (2026-10-12):** Only fitted index pieces are stops; the 48 positions are 7.5° apart. The lock is passive: once released, the pin rubs until it drops into the next index, which cuts motor power. The solenoid is released mid-gap after the previous index (RUN-25). CFG-08 is the calibrated time per step at each speed, learned once by a full-revolution calibration (RUN-27). No per-gap table is needed. |
 | OI-16 | **Hardware design review** | Open for discussion. Covers the exposed pins and silkscreen of the chosen D1 Mini ESP32 board compared with the pin map, the level shifter for the status ring (WS2812 data at 5 V), the external pull-up and pull-down resistors, power supply and wiring, and the enclosure layout. |
