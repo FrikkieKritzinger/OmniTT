@@ -2,6 +2,16 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-15 - E-STOP changed to normally open (session 6, part 3)
+
+- **E-STOP wiring**: normally open, with a 10 kΩ pull-up to 3.3 V on the button board.
+  Active LOW: pressing it pulls label 35 LOW. A normally closed button was hard to source
+  in the 12 mm square hole, and the button is inside the enclosure, so a broken-wire
+  failsafe isn't worth the bulk.
+- **Backstop**: the main power switch covers a hung firmware. A watchdog reset also takes
+  the TB6612 outputs low (external pull-downs), so the motor stops.
+- **SRD v0.31**: HW-14 updated. `config.h` and the GPIO reference updated.
+
 ## 2026-10-15 - LocoNet moved to a later phase (session 6, part 2)
 
 - **LocoNet is not in the initial design.** The SRD marks LocoNet requirements as deferred:

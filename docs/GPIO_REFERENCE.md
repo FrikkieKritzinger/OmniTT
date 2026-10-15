@@ -22,7 +22,7 @@
 | Encoder B | 21 | GPIO | EC11. Internal pull-up |
 | Encoder button | 22 | GPIO | Internal pull-up |
 | MENU button | TCK [13] | GPIO | Button board, external pull-up |
-| E-STOP | 35 | GPIO, input-only | Normally closed, button board, external pull-up. A broken wire reads as stop |
+| E-STOP | 35 | GPIO, input-only | Normally open, button board, external 10 kΩ pull-up to 3.3 V. Active LOW: pressed pulls the pin LOW |
 | Resistor ladder | 34 | GPIO, input-only, ADC1 | PRESET A, PRESET B, LAST EXIT and SPEED share this pin (see ladder below) |
 | Home sensor | TDO [15] | GPIO, strapping | Microswitch, internal pull-up. Holding it at power-up only silences the boot log |
 | Motor direction (DIR1) | 25 | GPIO | TB6612FNG channel A. External 10 kΩ pull-down |

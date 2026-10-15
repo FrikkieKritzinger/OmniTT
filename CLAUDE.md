@@ -78,7 +78,7 @@ Key behaviours to keep in mind:
 - Input filter on the N7812-1PV (Meanwell switching module, 8 to 20 V in, 12 V at 1 A out): 100 µF electrolytic (35 V or 50 V) plus 0.1 µF ceramic, close to the input pins. Check whether the module needs its own output capacitors.
 - Input filter on the Wemos D1 power shield (5 V and 3.3 V rails): confirm whether it is switching or linear, then fit 100 µF plus 0.1 µF at its input.
 - Check the 1 A output headroom: motor and solenoid together should stay well under 1 A, including at stall.
-- Button board: MENU (TCK), E-STOP (label 35, normally closed) and the resistor ladder (label 34). Build the series ladder with 1% resistors: 1 kΩ from 3.3 V, then 430 Ω, 270 Ω, 430 Ω, 680 Ω and 1.3 kΩ to GND, with a 0.1 µF filter on the ADC node. Buttons tap the ladder at 430 Ω (PRESET A), 700 Ω (PRESET B), 1.13 kΩ (LAST EXIT) and 1.81 kΩ (SPEED). Verify each level with a multimeter.
+- Button board: MENU (TCK), E-STOP (label 35, normally open, active LOW, 10 kΩ pull-up) and the resistor ladder (label 34). Build the series ladder with 1% resistors: 1 kΩ from 3.3 V, then 430 Ω, 270 Ω, 430 Ω, 680 Ω and 1.3 kΩ to GND, with a 0.1 µF filter on the ADC node. Buttons tap the ladder at 430 Ω (PRESET A), 700 Ω (PRESET B), 1.13 kΩ (LAST EXIT) and 1.81 kΩ (SPEED). Verify each level with a multimeter.
 - Solenoid direction: a 3-way jumper on DIR2 (label 33) selects the energising direction. Check whether the 6152 solenoid is polarised first.
 - Level shifter for the status ring data (label TMS, GPIO14).
 - Backlight: logic-level MOSFET on GPIO26 for about 45 mA, with a pull-down on the gate. Check on the bench how the module's BL responds to PWM, since the spec describes brightness set by resistor, not PWM.

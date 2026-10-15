@@ -19,7 +19,7 @@
 
 // Button board (external pull-ups)
 #define PIN_MENU_BTN     13  // label TCK (GPIO13) - MENU
-#define PIN_ESTOP        35  // label 35 (GPIO35) - Emergency STOP, normally closed (input-only, external pull-up)
+#define PIN_ESTOP        35  // label 35 (GPIO35) - Emergency STOP, normally open, active LOW (input-only, external pull-up)
 #define PIN_BUTTON_LADDER 34 // label 34 (GPIO34) - Resistor ladder: PRESET A, PRESET B, LAST EXIT, SPEED (ADC1, input-only)
 
 // Resistor ladder: series string (430, 270, 430, 680 and 1.3k ohm to GND) fed from 3.3 V through 1 kΩ,

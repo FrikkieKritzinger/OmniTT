@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| **Document status** | Draft v0.30 |
+| **Document status** | Draft v0.31 |
 | **Date** | 2026-10-07 |
 | **Target platform** | ESP32 (Wemos D1 Mini form factor) |
 
@@ -94,7 +94,7 @@ The controller has these parts:
 | HW-11 | The display is a 2.0" IPS (240×320), selected 2026-10-14. This is below the 2.4" minimum recorded under OI-01. **[CONFIRM – see OI-01 note]** |
 | HW-12 | The controller shall have one EC11-type rotary encoder module with an integrated push button. |
 | HW-13 | The controller shall have a dedicated MENU push button to switch between RUN mode and MENU mode. **[RESOLVED – OI-02]** |
-| HW-14 | The controller shall have a dedicated emergency STOP push button, wired normally closed so that a broken wire stops the bridge. **[RESOLVED – OI-03]** |
+| HW-14 | The controller shall have a dedicated emergency STOP push button, wired normally open as a firmware input with an external pull-up. Pressing it pulls the input LOW (active low). The main power switch is the backstop if the firmware hangs. **[RESOLVED – OI-03]** |
 | HW-15 | The eStop button shall stop bridge movement immediately |
 | HW-16 | The controller shall have a 12-pixel addressable RGB (NeoPixel) status ring mounted under the rotary encoder knob. The ring's 35 mm inside diameter fits the 35 mm aluminium knob, leaving the pixels visible around the knob edge. Implementation deferred to a later phase. |
 | HW-17 | The four shortcut buttons (PRESET A, PRESET B, LAST EXIT, SPEED) shall share one ADC input through a series resistor ladder: 1 kΩ from 3.3 V, then 430 Ω, 270 Ω, 430 Ω, 680 Ω and 1.3 kΩ to GND, with a 0.1 µF filter on the ADC node. Each button taps a point on the ladder. The levels are 992, 1359, 1755 and 2123 mV for the four buttons, and 2497 mV for no button. A reading shall be accepted only within 150 mV of a level. A reading below 700 mV is a fault and shall never be treated as a button press. |
