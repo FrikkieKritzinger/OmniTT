@@ -65,7 +65,7 @@ A series string runs from 3.3 V through a 1 kΩ resistor to the ladder pin, with
 | SVP | 36 | Input-only. Unused, spare input |
 | SVN | 39 | Input-only. Unused, spare input |
 | TX, RX | 1, 3 | UART0, serial debugging. Keep |
-| CLK, CMD, SD2, SD3, SDI, SDO | 6 to 11 | Internal flash. Do not use |
+| CLK, CMD, SD0, SD1, SD2, SD3 | 6 to 11 | Internal flash. Do not use |
 
 ---
 
