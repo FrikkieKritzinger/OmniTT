@@ -2,6 +2,34 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-10-29 - Schematic and PCB verified against the design (session 7)
+
+- **Layout**: one PCB panel with a perforated breakaway section for the button board.
+  The main board carries J6, J7, J4 and J1 at the rear. The button board carries J5, the
+  ladder, SW1 to SW6, the pull-ups, C11 and R1. LocoNet (J7, Q3, U5, R9 to R14) stays on
+  this revision, unpopulated, so the board is ready for manufacturing.
+- **Cable**: five wires join J5 on the button board to J6 on the main board. J5 and J6
+  both use the same pinout: 1 = +3.3 V, 2 = GND, 3 = ADC (GPIO34), 4 = MENU (TCK),
+  5 = E-STOP (GPIO35). The DRC items for 3.3 V, ADC, MENU and E-STOP are the cable link,
+  so they're expected to be unrouted on the board.
+- **Button board**: R1 (1 kΩ) runs from +3.3 V to the ADC node. The ladder runs from the
+  ADC node through R2 (430 Ω), R3 (270 Ω), R4 (430 Ω), R5 (680 Ω) and R6 (1.3 kΩ) to GND.
+  Each button taps a node to GND, which gives 430, 700, 1130 and 1810 Ω to the ADC node.
+  R7 and R8 (10 kΩ) pull MENU and E-STOP up to +3.3 V. C11 (0.1 µF) runs from the ADC node to
+  GND. The levels match `config.h`.
+- **Schematic page 2 (`tt_control.kicad_sch`)**: a +3.3 V symbol was on J5 pin 2 at one
+  point, which shorted +3.3 V to GND on the board. It's now on pin 1. Global labels
+  `BUTTONS_ADC_IN`, `MENU` and `E_STOP` join J5 pins 3, 4 and 5 to the main board. The ladder
+  wiring is drawn with junction dots at each node.
+- **Check**: the GUI netlist exported 2026-10-29 11:17 has 174 pins on 56 nets. Every pin
+  matches the PCB pad net, with no differences. The board has 6 extra pads with no net.
+- **Tooling note**: `kicad-cli sch export netlist` on `tt_control.kicad_sch` alone doesn't
+  reproduce the editor's netlist. It omitted the ladder nets that the editor and board both
+  have. Use the editor's netlist export as the reference when comparing with the board.
+- **Open**: run ERC in the editor on page 2 to confirm no dangling wires remain. The
+  command-line ERC reported four dangling junctions, which may be the same export difference.
+  OI-16 (hardware review) is still open.
+
 ## 2026-10-15 - E-STOP changed to normally open (session 6, part 3)
 
 - **E-STOP wiring**: normally open, with a 10 kΩ pull-up to 3.3 V on the button board.
