@@ -11,3 +11,10 @@ docs/*.pdf
 
 # Vendor datasheet for the TB6612FNG motor driver (Toshiba, redistribution restricted)
 docs/*TB6612*
+
+# KiCad: local editor state, lock files, autosave/backup and nested history repos
+*.kicad_prl
+*.lck
+*-backups/
+.history/
+.history_trim/
