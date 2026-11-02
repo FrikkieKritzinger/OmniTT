@@ -27,7 +27,8 @@ Dated session history, newest first. `CLAUDE.md` holds current state only.
   expected, since the button sheet drives it. The button and LocoNet sheets were checked
   separately; their dangling wire stubs are grid-snap residue that doesn't reach the PCB.
 - **Done**: U3 pin 7 (VCC) moved to +3.3 V in the schematic and board. Netlist re-checked.
-- **Open**: confirm the full-project ERC in the editor.
+- **ERC (full project, editor)**: no errors. Eight warnings, all symbol-vs-library mismatches
+  from deliberate local footprint and symbol edits.
 
 ## 2026-10-29 - Schematic and PCB verified against the design (session 7)
 
