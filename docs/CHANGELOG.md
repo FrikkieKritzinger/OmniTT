@@ -2,6 +2,33 @@
 
 Dated session history, newest first. `CLAUDE.md` holds current state only.
 
+## 2026-11-02 - Power, backlight and level-shifter review (session 8)
+
+- **TB6612FNG VCC**: the datasheet's operating range is 2.7 to 5.5 V, but control inputs
+  need VIH ≥ 0.7 × VCC. At 5 V that is 3.5 V, which the ESP32's 3.3 V output can't reach
+  reliably. VCC moves to +3.3 V (U3 pin 7 was on +5 V). The "never 5 V" rule in
+  `CLAUDE.md` now records this reason. Source: DFRobot DRI0044 datasheet (TB6612FNG
+  section); the VIH/VIL cells were read from the text extraction, so check against the page.
+- **STBY**: the DFRobot module has an internal pull-up on STBY, confirmed on the module.
+  The datasheet's 200 kΩ pull-down is overridden, so the chip runs without an external
+  STBY connection.
+- **Backlight**: measured 46 mA with BL at 3.3 V, so BL is the anode side and direct
+  drive from GPIO26 is not safe (ESP32 pins are about 12 mA continuous). Q1 (Si2301CDS,
+  P-channel) is now the high-side switch: source on +3.3 V, drain on BL, gate pulled high
+  by R16 (10 kΩ) and driven from GPIO26 through R15 (100 Ω). GPIO26 low turns it on, so
+  PWM duty is inverted in firmware.
+- **NeoPixel level shifter**: U7 is an SN74LVC1T45DBV (SOT-23-6). VCCA (pin 1) is +5 V,
+  VCCB (pin 6) is +3.3 V, DIR (pin 5) is GND (B to A). Decoupling is C12 (+5 V) and C13
+  (+3.3 V), 100 nF 1206, with vias to the GND plane next to each capacitor and U7 pin 2.
+- **J2**: now 7 pins. Ring: 1 = +5 V, 6 = GND, 7 = data. Encoder and button: 2 = A, 3 = B,
+  4 = button, 5 = +3.3 V, 6 = GND (shared).
+- **ERC (root sheet)**: 25 violations reduced to 10. Unused ESP32 pins got no-connect flags.
+  The netlist is unchanged apart from those flags. The remaining MENU input error is
+  expected, since the button sheet drives it. The button and LocoNet sheets were checked
+  separately; their dangling wire stubs are grid-snap residue that doesn't reach the PCB.
+- **Open**: confirm the full-project ERC in the editor. Update U3 pin 7 to +3.3 V in the
+  schematic and re-run the netlist check.
+
 ## 2026-10-29 - Schematic and PCB verified against the design (session 7)
 
 - **Layout**: one PCB panel with a perforated breakaway section for the button board.

@@ -70,8 +70,8 @@ Key behaviours to keep in mind:
 
 **To-do (hardware, before wiring)**:
 - TB6612FNG datasheet (checked 2026-10-12): every control input (AIN1, AIN2, BIN1, BIN2, PWMA, PWMB, STBY) has an internal 200 kΩ pull-down. STBY is active-low. Still to confirm on the DFRobot board with a multimeter (board unpowered, about 200 kΩ to GND per input). If confirmed, the pull-downs on TCK, TMS, 32 and 4 are not needed.
-- Confirm the board holds STBY high, since no STBY pin is exposed. Otherwise the chip sits in standby.
-- VCC (logic) must be 3.3 V: operating range 2.7 to 5.5 V, absolute maximum 6 V. Never connect 5 V or 12 V to VCC. Check the DFRobot board's VCC wiring.
+- STBY: the DFRobot board has an internal pull-up (confirmed on the module), so the chip runs without an external STBY connection.
+- VCC (logic) must be 3.3 V, not 5 V. The datasheet operating range is 2.7 to 5.5 V, but control inputs need VIH ≥ 0.7 × VCC. At 5 V that is 3.5 V, above the ESP32's 3.3 V output, so inputs would not reliably read high. Never connect 5 V or 12 V to VCC. Schematic: U3 pin 7 moved from +5 V to +3.3 V (pending the schematic edit).
 - Bypass capacitors per the datasheet application circuit: 0.1 µF plus 10 µF on VCC, and 0.1 µF plus 10 µF on VM, placed close to the pins. Check whether the DFRobot board already has them.
 - Fit a flyback diode (1N4007 or UF4007) across the lock solenoid, cathode to +12 V, anode to the driver side. One diode is enough because the solenoid is only driven in one direction.
 - Optional: 0.1 µF across the motor terminals to reduce brush noise. Common practice, not from the datasheet.
