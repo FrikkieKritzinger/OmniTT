@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "DFRobot")(type "KiCad")(uri "${KIPRJMOD}/libraries/DFRobot.kicad_sym")(options "")(descr "DFRobot TB6612FNG module (author's own design)"))
+)

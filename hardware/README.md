@@ -10,14 +10,19 @@ Open `OmniTT Turntable Controller.kicad_pro` in KiCad 10.
 
 ## External libraries
 
-The design uses two custom libraries. They are deliberately not in the repo: they are
-modified third-party work, and the repo keeps only the design files. Install them in
-KiCad before opening the project, or the footprints show as missing.
+The design uses two custom libraries.
 
-| Library nickname | Used for | Origin |
-|---|---|---|
-| `DFRobot` (symbol) and `library` (footprint) | DFRobot TB6612FNG motor driver module (U3) | Based on the d1_mini_kicad library (CC BY-SA 3.0), modified by the author |
-| `TTGO_T7_MINI32_V1.3` (symbol and footprint) | ESP32 D1 Mini (WROOM-32) module (U4) | Downloaded footprint (SnapEDA basis), modified by the author |
+| Library nickname | Used for | Where it lives | Origin |
+|---|---|---|---|
+| `DFRobot` (symbol) and `library` (footprint) | DFRobot TB6612FNG motor driver module (U3) | In the repo: `libraries/DFRobot.kicad_sym` and `libraries/library.pretty/` | Designed by the author |
+| `TTGO_T7_MINI32_V1.3` (symbol and footprint) | ESP32 D1 Mini (WROOM-32) module (U4) | Not in the repo | Downloaded footprint (SnapEDA basis), modified by the author |
+
+`sym-lib-table` and `fp-lib-table` point KiCad at the in-repo libraries using `${KIPRJMOD}`,
+so the project resolves them without any global setup.
+
+The TTGO library isn't in the repo. Install it in KiCad from your own copy before opening
+the project, or its footprint shows as missing. Its SnapEDA origin needs checking before
+it's added to the repo.
 
 Standard KiCad libraries (Resistor_THT, Capacitor_THT, Connector_PinHeader, Package_TO_SOT, and so on)
 ship with KiCad and need no separate install.
