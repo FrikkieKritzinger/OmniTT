@@ -26,8 +26,8 @@ Dated session history, newest first. `CLAUDE.md` holds current state only.
   The netlist is unchanged apart from those flags. The remaining MENU input error is
   expected, since the button sheet drives it. The button and LocoNet sheets were checked
   separately; their dangling wire stubs are grid-snap residue that doesn't reach the PCB.
-- **Open**: confirm the full-project ERC in the editor. Update U3 pin 7 to +3.3 V in the
-  schematic and re-run the netlist check.
+- **Done**: U3 pin 7 (VCC) moved to +3.3 V in the schematic and board. Netlist re-checked.
+- **Open**: confirm the full-project ERC in the editor.
 
 ## 2026-10-29 - Schematic and PCB verified against the design (session 7)
 
